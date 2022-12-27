@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { styled, alpha } from '@mui/material/styles';
+import { styled, alpha, createTheme } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -15,6 +15,10 @@ import AccountCircle from '@mui/icons-material/AccountCircle';
 import MailIcon from '@mui/icons-material/Mail';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import MoreIcon from '@mui/icons-material/MoreVert';
+import { useContext , useEffect , useState } from 'react';
+import Authcontext from '../contexts/Authcontext';
+import UserInfoContext from '../contexts/UserInfoContext';
+import Router from 'next/router';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -56,7 +60,12 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
+
+
 export default function NavBarr() {
+  const userInfo = useContext(UserInfoContext); 
+
+  console.log(userInfo); 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
 
@@ -64,6 +73,7 @@ export default function NavBarr() {
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
 
   const handleProfileMenuOpen = (event) => {
+   
     setAnchorEl(event.currentTarget);
   };
 
@@ -156,7 +166,7 @@ export default function NavBarr() {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static">
+      <AppBar position="static" style={{ background: '#2E3B55' }} >
         <Toolbar>
           
           <Typography
@@ -165,7 +175,7 @@ export default function NavBarr() {
             component="div"
             sx={{ display: { xs: 'none', sm: 'block' } }}
           >
-            Chatify_BY_AC
+            CHAT WITH ME
           </Typography>
           <Search>
             <SearchIconWrapper>
@@ -177,6 +187,14 @@ export default function NavBarr() {
             />
           </Search>
           <Box sx={{ flexGrow: 1 }} />
+          <Typography
+            variant="h6"
+            noWrap
+            component="div"
+            sx={{ display: { xs: 'none', sm: 'block' } }}
+          >
+            {userInfo.userInfo.name}
+          </Typography>
           <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
             <IconButton size="large" aria-label="show 4 new mails" color="inherit">
               <Badge badgeContent={4} color="error">

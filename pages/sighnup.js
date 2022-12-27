@@ -30,26 +30,39 @@ const theme = createTheme({
   },
 });
 
-export default function sighnUp() {
+export default  function sighnUp() {
   let router = useRouter(); 
   async function handleSubmit(event) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const email = data.get('email');
     const password = data.get('password');
+    const name = data.get('firstName') + ' ' + data.get('lastName'); 
     const req = {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json', 'Accept': 'application/json'
       },
+      type:'first', 
       body: JSON.stringify({ email, password })
     }
     const response = await fetch("/api/signinapi", req);
-    const datax = response.json(); 
+    const DataX = await response.json();
+    const UID = JSON.stringify(DataX.obj.uid)
     if(response.status === 200){
+      console.log(UID); 
+      const dataWeHavetoSave  = {
+        method : 'POST', 
+        headers: {
+          'Content-Type': 'application/json', 'Accept': 'application/json'
+        },
+        body : JSON.stringify({ name ,  email  , UID })
+      }
+      const responsefromBackend= await fetch("/api/serverBackend", dataWeHavetoSave) ;
+      console.log(responsefromBackend.json());   
       router.push('/login');  
     }else{
-      console.log(datax)
+      console.log(UID); 
     }
   };
   return (
