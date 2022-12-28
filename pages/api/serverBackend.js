@@ -15,22 +15,23 @@ ProfileX.createIndexes();
 
 
 async function serverBackend(req , res) {
-   
-    if(req.type === 'first'){
-        try {
-            const user = await ProfileX.create(req.body)
-            res.status(201).json({ success: true, data: user })
-        } catch (error) {             
-            res.status(400).json({ success: false, error : error })
-        }
+    if(req.body.type === 'first'){
+        console.log("THIS=>,,")
+        var data = new ProfileX({name : req.body.name ,email :  req.body.email , UID :  req.body.UID}); 
+        
+        data.save().then(()=>{
+            res.send("success")
+        }).catch(err =>{
+            console.log(err); 
+            res.status(400).send(err)
+        })
     } else{
         try{
-            const q = JSON.stringify(req.body); 
-            console.log(q); 
+            const q = JSON.stringify(req.body.UID); 
+            //console.log(q); 
             const user = await ProfileX.find({UID : q}); 
             res.status(201).json({success: true , data : user}); 
         }catch(error){
-            console.log(error) ; 
             res.status(400).json({success :false , error: error}); 
         }
     }

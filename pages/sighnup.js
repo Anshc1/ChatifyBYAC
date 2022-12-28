@@ -43,26 +43,26 @@ export default  function sighnUp() {
       headers: {
         'Content-Type': 'application/json', 'Accept': 'application/json'
       },
-      type:'first', 
+
       body: JSON.stringify({ email, password })
     }
     const response = await fetch("/api/signinapi", req);
     const DataX = await response.json();
     const UID = JSON.stringify(DataX.obj.uid)
     if(response.status === 200){
-      console.log(UID); 
+  
       const dataWeHavetoSave  = {
         method : 'POST', 
         headers: {
           'Content-Type': 'application/json', 'Accept': 'application/json'
         },
-        body : JSON.stringify({ name ,  email  , UID })
+        body : JSON.stringify({type : 'first' ,  name : name ,  email : email  , UID : UID })
       }
-      const responsefromBackend= await fetch("/api/serverBackend", dataWeHavetoSave) ;
-      console.log(responsefromBackend.json());   
+      const responsefromBackend= await fetch("/api/serverBackend", dataWeHavetoSave) ;      
+      console.log(responsefromBackend);  
       router.push('/login');  
     }else{
-      console.log(UID); 
+      //console.log(UID); 
     }
   };
   return (

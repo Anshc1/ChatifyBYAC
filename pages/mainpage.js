@@ -10,8 +10,7 @@ function capitalizeFirstLetter(string) {
 const fetchName = async (val) => {
   const query = {
     method: 'POST',
-    type: 'second',
-    body: val.state.UID
+    body:  {type : 'second' ,  UID :  val.state.UID} 
   }
   const response = await fetch('/api/serverBackend', query);
   const user = await response.json();
