@@ -19,23 +19,41 @@ import { useContext , useEffect , useState } from 'react';
 import Authcontext from '../contexts/Authcontext';
 import UserInfoContext from '../contexts/UserInfoContext';
 import Router from 'next/router';
+import { ReactSearchAutocomplete } from 'react-search-autocomplete'
 
-const Search = styled('div')(({ theme }) => ({
-  position: 'relative',
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: alpha(theme.palette.common.white, 0.15),
-  '&:hover': {
-    backgroundColor: alpha(theme.palette.common.white, 0.25),
-  },
-  marginRight: theme.spacing(2),
-  marginLeft: 0,
-  width: '100%',
-  [theme.breakpoints.up('sm')]: {
-    marginLeft: theme.spacing(3),
-    width: 'auto',
-  },
-}));
 
+var items = [
+    {
+           name: 'Titanic',
+           email: 'A movie about love'
+    }
+ ,   
+{name: 'kcddci cijidjic', email: 'diwidjijw@didjcjid.com'}
+,
+{name: 'ansh chaturvedi', email: 'test7@test7.com'}
+,
+{name: 'ansh chaturvedi', email: 'test@yyyy.com'}
+    
+]
+const fetchNames = async () => {
+  const query = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json', 'Accept': 'application/json'
+    },
+  }
+  const response = await fetch('/api/serverBackend', query);
+  const user = await response.json().then(result => result.data);
+  for (const child of user) {
+    var data = {
+      name : child.name , 
+      email: child.email, 
+    }
+    items.push(data); 
+  }
+ /* user.then((datax)=>{
+  })*/ 
+}
 const SearchIconWrapper = styled('div')(({ theme }) => ({
   padding: theme.spacing(0, 2),
   height: '100%',
@@ -63,52 +81,96 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 
 export default function NavBarr() {
-  const userInfo = useContext(UserInfoContext); 
+   
+  useEffect(() => {
+      fetchNames() ;
+      console.log(items); 
+  }, [])
+   
+  const handleOnSearch = (string, results) => {
+    // onSearch will have as the first callback parameter
+    // the string searched and for the second the results.
+    console.log(string, results)
+  }
 
-  console.log(userInfo); 
+  const handleOnHover = (result) => {
+    // the item hovered
+    console.log(result)
+  }
+
+  const handleOnSelect = (item) => {
+    // the item selected
+    console.log(item)
+  }
+
+  const handleOnFocus = () => {
+    console.log('Focused')
+  }
+
+  const formatResult = (item) => {
+    return (
+      <>
+        <span style={{ display: 'block', textAlign: 'left' }}>name: {item.name}</span>
+      </>
+    )
+  }
+
+
+
+
+
+
+
+
+  const userInfo = useContext(UserInfoContext); 
+  
+  const [userName, setuserName] = useState("") 
+  useEffect(() => {
+    setuserName( userInfo.userInfo.Name); 
+  }, [])
+  
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
-
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
 
   const handleProfileMenuOpen = (event) => {
-   
     setAnchorEl(event.currentTarget);
   };
-
+  
   const handleMobileMenuClose = () => {
     setMobileMoreAnchorEl(null);
   };
-
+  
   const handleMenuClose = () => {
+    Router.push('/ProfilePage')
     setAnchorEl(null);
     handleMobileMenuClose();
   };
-
+  
   const handleMobileMenuOpen = (event) => {
     setMobileMoreAnchorEl(event.currentTarget);
   };
-
+  
   const menuId = 'primary-search-account-menu';
   const renderMenu = (
     <Menu
-      anchorEl={anchorEl}
-      anchorOrigin={{
-        vertical: 'top',
-        horizontal: 'right',
-      }}
-      id={menuId}
-      keepMounted
-      transformOrigin={{
-        vertical: 'top',
+    anchorEl={anchorEl}
+    anchorOrigin={{
+      vertical: 'top',
+      horizontal: 'right',
+    }}
+    id={menuId}
+    keepMounted
+    transformOrigin={{
+      vertical: 'top',
         horizontal: 'right',
       }}
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
       <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-      <MenuItem onClick={handleMenuClose}>My account</MenuItem>
+      <MenuItem onClick={handleMenuClose}>Verify My account</MenuItem>
     </Menu>
   );
 
@@ -177,15 +239,27 @@ export default function NavBarr() {
           >
             CHAT WITH ME
           </Typography>
-          <Search>
-            <SearchIconWrapper>
-              <SearchIcon />
-            </SearchIconWrapper>
-            <StyledInputBase
-              placeholder="Search…"
-              inputProps={{ 'aria-label': 'search' }}
-            />
-          </Search>
+          <div className="App">
+      <header className="App-header">
+        <div style={{ paddingLeft:150 ,   width: 350 }}>
+          
+          <ReactSearchAutocomplete
+          styling={ {height: "27px"}}
+            items={items}
+          
+            fuseOptions={{ keys: ['name' , 'email' ] }}
+            
+            resultStringKeyName="name"
+            onSearch={handleOnSearch}
+            onHover={handleOnHover}
+            onSelect={handleOnSelect}
+            onFocus={handleOnFocus}
+            autoFocus
+            formatResult={formatResult}
+          />
+        </div>
+      </header>
+    </div>
           <Box sx={{ flexGrow: 1 }} />
           <Typography
             variant="h6"
@@ -193,7 +267,7 @@ export default function NavBarr() {
             component="div"
             sx={{ display: { xs: 'none', sm: 'block' } }}
           >
-            {userInfo.userInfo.name}
+          {userName}  
           </Typography>
           <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
             <IconButton size="large" aria-label="show 4 new mails" color="inherit">

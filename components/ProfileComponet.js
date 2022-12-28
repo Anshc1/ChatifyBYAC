@@ -1,9 +1,20 @@
-import React from 'react';
+import React ,  {useContext  } from 'react';
 import { MDBCol, MDBContainer, MDBRow, MDBCard, MDBCardText, MDBCardBody, MDBCardImage, MDBBtn, MDBTypography } from 'mdb-react-ui-kit';
-
+import UserInfoContext from '../contexts/UserInfoContext';
+import { useState , useEffect } from 'react';
 export default function EditButton() {
+    const userInfo = useContext(UserInfoContext); 
+  
+    const [userName, setuserName] = useState("") 
+    const [Email, setEmail] = useState("")
+    useEffect(() => {
+      setuserName( userInfo.userInfo.Name);
+      setEmail(userInfo.userInfo.email) 
+    }, [])
+    
     return (
-        
+
+        <>
         <div className="gradient-custom-2" style={{ background: 'linear-gradient(to right, rgba(102, 126, 234, 0.5), rgba(118, 75, 162, 0.5))' }}>
             <MDBContainer className="py-5 h-100">
                 <MDBRow className="justify-content-center align-items-center h-100">
@@ -18,17 +29,13 @@ export default function EditButton() {
                                     </MDBBtn>
                                 </div>
                                 <div className="ms-3" style={{ marginTop: '130px' }}>
-                                    <MDBTypography tag="h5">Andy Horwitz</MDBTypography>
-                                    <MDBCardText>New York</MDBCardText>
+                                    <MDBTypography tag="h5">{userName}</MDBTypography>
+                                    <MDBCardText>{Email}</MDBCardText>
                                 </div>
                             </div>
                             <div className="p-4 text-black" style={{ backgroundColor: '#f8f9fa' }}>
                                 <div className="d-flex justify-content-end text-center py-1">
-                                    <div>
-                                        <MDBCardText className="small text-muted mb-0">Email</MDBCardText>
-                                        <MDBCardText className="mb-1 h5">253</MDBCardText>
-                                    </div>
-
+                              
                                 </div>
                             </div>
                             <MDBCardBody className="text-black p-4">
@@ -47,5 +54,6 @@ export default function EditButton() {
                 </MDBRow>
             </MDBContainer>
         </div>
+        </>
     );
 }

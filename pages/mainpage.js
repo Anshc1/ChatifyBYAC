@@ -1,4 +1,4 @@
-import React, { useContext , useState ,useEffect } from 'react'
+import React, { useContext, useState, useEffect } from 'react'
 import Authcontext from '../contexts/Authcontext'
 import NavBarr from '../components/NavBarr';
 import MainScreen from '../components/MainScreen';
@@ -10,33 +10,34 @@ function capitalizeFirstLetter(string) {
 const fetchName = async (val) => {
   const query = {
     method: 'POST',
-    body:  {type : 'second' ,  UID :  val.state.UID} 
+    headers: {
+      'Content-Type': 'application/json', 'Accept': 'application/json'
+    },
+    body: JSON.stringify({ type: 'second', UID: JSON.stringify(val.state.UID) })
   }
+
   const response = await fetch('/api/serverBackend', query);
+
   const user = await response.json();
   return user.data;
 }
 
 function mainpage() {
   const val = useContext(Authcontext);
-  const userInfo = useContext(UserInfoContext); 
+  const userInfo = useContext(UserInfoContext);
   useEffect(() => {
     const func = async () => {
       const res = await fetchName(val);
-      
-      const state = {
-        name : capitalizeFirstLetter( res[0].name )  , 
-        email : res[0].email , 
-        Url : ""  
-      }
-      userInfo.setuserInfo(state); 
-      localStorage.setItem("userInfo" , state); 
+
+      const Name = capitalizeFirstLetter(res[0].name);
+      const email = res[0].email;
+      localStorage.setItem('userName', Name);
+      localStorage.setItem('email', email);
+      //console.log(userInfo.userInfo);
     }
     func();
   }, [])
 
-  console.log("watchthis->>")
-  console.log(val.state.UID);
   return (
     <>
       <MainScreen />

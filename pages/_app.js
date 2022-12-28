@@ -16,15 +16,23 @@ export default function App({ Component, pageProps }) {
     if(local!=null){
       initialstate = JSON.parse(local); 
     }
-    const localInfo = window.localStorage.getItem('userInfo');
-    if(localInfo!=null){
-      initialuserInfo = (localInfo); 
+    const userName = window.localStorage.getItem('userName');
+    if(userName!=null){
+      initialuserInfo.Name = (userName); 
+    }
+    const email = window.localStorage.getItem('email');
+    if(email!=null){
+      initialuserInfo.email = (email); 
     }
   } 
+ // console.log(initialuserInfo); 
   const [UID, setUID] = useState(initialstate)
   const [userInfo, setuserInfo] = useState(initialuserInfo);  
+  const funUpd=(state)=>{
+    setuserInfo(state); 
+  }
   return (
-  <UserInfoContext.Provider value = {{userInfo : userInfo , setuserInfo : setuserInfo} }>
+  <UserInfoContext.Provider value = {{userInfo : userInfo , setuserInfo : funUpd} }>
    <Authcontext.Provider value= {{state:{UID:  UID }  , setUID : setUID}}>
        <Component {...pageProps} />
     </Authcontext.Provider>
