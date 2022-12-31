@@ -17,10 +17,19 @@ async function serverBackend(req, res) {
         await ProfilesImages.deleteMany({UID : req.body.UID})
         var data = new ProfilesImages({UID : req.body.UID , URL : req.body.URL});
         data.save().then(() => {
-            res.send("success")
+            res.status(200).send("success")
         }).catch(err => {
             res.status(400).send(err)
         })
+    }else{
+        await ProfilesImages.find({}).then((data)=>{
+            console.log(data)
+            res.status(200).send(data);  
+        }).catch(err=>{
+            console.log(err); 
+            res.status(400).send('error'); 
+        }); 
+
     }
 }
 

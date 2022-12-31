@@ -26,7 +26,7 @@ function mainpage() {
   useEffect(() => {
     const func = async () => {
       await fetchName(val).then((res)=>{
-        console.log(res);  
+  
         const Name = capitalizeFirstLetter(res[0].name);
         const email = res[0].email;
         localStorage.setItem('userName', Name);

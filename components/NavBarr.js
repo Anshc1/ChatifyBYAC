@@ -24,6 +24,7 @@ import { Avatar } from '@mui/material';
 import AdbIcon from '@mui/icons-material/Adb';
 
 const fetchNames = async () => {
+
   const query = {
     method: 'GET',
     headers: {
@@ -34,6 +35,23 @@ const fetchNames = async () => {
   const user = await response.json();
   return user.data;
 }
+const fetchURL = async () => {
+  const query = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json', 'Accept': 'application/json'
+    },
+  }
+  var mp = new Map();
+  const response = await fetch('/api/serverBackendImage', query)
+  await response.json().then((user) => {
+    for (const child of user) {
+      mp.set(JSON.stringify(child.UID), child.URL)
+    }
+  });
+  return mp;
+}
+
 const SearchIconWrapper = styled('div')(({ theme }) => ({
   padding: theme.spacing(0, 2),
   height: '100%',
@@ -62,44 +80,61 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 export default function NavBarr() {
   const [Item, setItem] = useState([])
   useEffect(() => {
-    setItem([]); 
-    fetchNames().then((user) => {
-      for (const child of user) {
-        const data = {
-          name: child.name,
-          email: child.email,
+    setItem([]);
+    fetchURL().then((mp) => {
+      fetchNames().then((user) => {
+        for (const child of user) {
+          const data = {
+            name: child.name,
+            email: child.email,
+            ProfileURL: mp.get((child.UID))
+          }
+          setItem(current => [...current, data]);
         }
-        setItem(current =>[...current , data]);
-      }
-     })
-  }, []) 
+      });
+    })
+  }, [])
   const handleOnSearch = (string, results) => {
-    // onSearch will have as the first callback parameter
-    // the string searched and for the second the results.
     console.log(string, results)
   }
 
   const handleOnHover = (result) => {
-    // the item hovered
     console.log(result)
   }
 
   const handleOnSelect = (item) => {
-    // the item selected
     console.log(item)
   }
 
   const handleOnFocus = () => {
     console.log('Focused')
   }
+  const handleOnClick = (e) => {
+    e.preventDefault()
 
-  const formatResult = (item) => {
+    Router.push(href); 
+  }
+
+  const formatResult = (item => {
     return (
       <>
-        <span style={{ display: 'block', textAlign: 'left' }}> {item.name}</span>
+        <a href="/ProfilePage"
+         onClick={handleOnClick}>
+          <div style={{ display: 'flex', flexDirection: 'row' }} >
+            <Avatar
+              alt="Remy Sharp"
+              src={item.ProfileURL}
+              sx={{ width: 24, height: 24 }}
+            />
+            <span style={{ display: 'block', textAlign: 'left', paddingLeft: '5px' }}> {item.name}</span>
+          </div>
+        </a>
+
+
+        <span style={{ display: 'block', textAlign: 'left' }}> {item.email}</span>
       </>
     )
-  }
+  });
   const userInfo = useContext(UserInfoContext);
 
   const [userName, setuserName] = useState("")
@@ -175,7 +210,7 @@ export default function NavBarr() {
             <MailIcon />
           </Badge>
         </IconButton>
-        <p>Messages</p>
+        <div>Messages</div>
       </MenuItem>
       <MenuItem>
         <IconButton
@@ -187,7 +222,7 @@ export default function NavBarr() {
             <NotificationsIcon />
           </Badge>
         </IconButton>
-        <p>Notifications</p>
+        <div>Notifications</div>
       </MenuItem>
       <MenuItem onClick={handleProfileMenuOpen}>
         <IconButton
@@ -199,7 +234,7 @@ export default function NavBarr() {
         >
           <AccountCircle />
         </IconButton>
-        <p>Profile</p>
+        <div>Profile</div>
       </MenuItem>
     </Menu>
   );
@@ -208,9 +243,7 @@ export default function NavBarr() {
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static" style={{ background: '#2E3B55' }} >
         <Toolbar>
-          
-
-        <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
+          <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
 
           <Typography
             variant="h6"
@@ -218,21 +251,19 @@ export default function NavBarr() {
             component="div"
             sx={{ display: { xs: 'none', sm: 'block' } }}
             href="/mainpage"
-            >
+          >
             CHATIFY
           </Typography>
-            
+
           <div className="App">
             <header className="App-header">
-              <div style={{ paddingLeft: 150, width: 400 }}>
+              <div style={{ paddingLeft: 150, width: 500 }}>
 
                 <ReactSearchAutocomplete
                   styling={{ height: "27px" }}
                   items={Item}
 
                   fuseOptions={{ keys: ['name', 'email'] }}
-
-  
                   onSearch={handleOnSearch}
                   onHover={handleOnHover}
                   onSelect={handleOnSelect}
@@ -244,8 +275,8 @@ export default function NavBarr() {
             </header>
           </div>
           <Box sx={{ flexGrow: 1 }} />
-          <div style={ {paddingRight: '10px'} }>
-          <Avatar alt="Travis Howard" src={userInfo.userInfo.Url}  />
+          <div style={{ paddingRight: '10px' }}>
+            <Avatar alt="Travis Howard" />
 
           </div>
           <Typography
@@ -254,7 +285,7 @@ export default function NavBarr() {
             component="div"
             sx={{ display: { xs: 'none', sm: 'block' } }}
           >
-            {userName}
+
           </Typography>
           <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
             <IconButton size="large" aria-label="show 4 new mails" color="inherit">

@@ -14,11 +14,10 @@ const app = initializeApp(firebaseConfig);
 
 
 
-export default function EditButton() {
+export default function ProfileComponent(props) {
     const userInfo = useContext(UserInfoContext);
     const [userName, setuserName] = useState("")
     const [Email, setEmail] = useState("")
-    const [Pic, setPic] = useState(null);
     const auth = useContext(Authcontext);
     useEffect(() => {
         setuserName(userInfo.userInfo.Name);
@@ -26,8 +25,10 @@ export default function EditButton() {
     }, [])
 
     const [picURL, setpicURL] = useState('https://firebasestorage.googleapis.com/v0/b/chatifybyac.appspot.com/o/images%2Funknown-male-person-eps-10-vector-13383958.jpg?alt=media&token=4b94f2d6-e697-4ea7-b874-ab519bd3f141');
+    
+    
+    
     const handleOnchange = (e) => {
-
         const storage = getStorage(app);
         const storageRef = ref(storage, 'images/' + userName);
         const uploadTask = uploadBytesResumable(storageRef, e.target.files[0]);
@@ -90,12 +91,17 @@ export default function EditButton() {
             }
         }
 
+        if(props.PageProps===null){
+            console.log(props);
+            setEmail(props.email); 
+            setuserName(props.name); 
+            setpicURL(props.ProfileURL)
+        }
 
     }, [])
-
     return (
 
-        <>
+        <div>
             <div className="gradient-custom-2" style={{ background: 'linear-gradient(to right, rgba(102, 126, 234, 0.5), rgba(118, 75, 162, 0.5))' }}>
                 <MDBContainer className="py-5 h-100">
                     <MDBRow className="justify-content-center align-items-center h-100">
@@ -123,7 +129,7 @@ export default function EditButton() {
                                 </div>
                                 <MDBCardBody className="text-black p-4">
                                     <div className="mb-5">
-                                        <p className="lead fw-normal mb-1">About</p>
+                                        <div className="lead fw-normal mb-1">About</div>
                                         <div className="p-4" style={{ backgroundColor: '#f8f9fa' }}>
                                             <MDBCardText className="font-italic mb-1">Web Developer</MDBCardText>
                                             <MDBCardText className="font-italic mb-1">Lives in New York</MDBCardText>
@@ -137,6 +143,6 @@ export default function EditButton() {
                     </MDBRow>
                 </MDBContainer>
             </div>
-        </>
+        </div>
     );
 }
