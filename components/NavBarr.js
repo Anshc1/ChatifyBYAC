@@ -15,26 +15,14 @@ import AccountCircle from '@mui/icons-material/AccountCircle';
 import MailIcon from '@mui/icons-material/Mail';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import MoreIcon from '@mui/icons-material/MoreVert';
-import { useContext , useEffect , useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import Authcontext from '../contexts/Authcontext';
 import UserInfoContext from '../contexts/UserInfoContext';
 import Router from 'next/router';
 import { ReactSearchAutocomplete } from 'react-search-autocomplete'
+import { Avatar } from '@mui/material';
+import AdbIcon from '@mui/icons-material/Adb';
 
-
-var items = [
-    {
-           name: 'Titanic',
-           email: 'A movie about love'
-    }
- ,   
-{name: 'kcddci cijidjic', email: 'diwidjijw@didjcjid.com'}
-,
-{name: 'ansh chaturvedi', email: 'test7@test7.com'}
-,
-{name: 'ansh chaturvedi', email: 'test@yyyy.com'}
-    
-]
 const fetchNames = async () => {
   const query = {
     method: 'GET',
@@ -43,16 +31,8 @@ const fetchNames = async () => {
     },
   }
   const response = await fetch('/api/serverBackend', query);
-  const user = await response.json().then(result => result.data);
-  for (const child of user) {
-    var data = {
-      name : child.name , 
-      email: child.email, 
-    }
-    items.push(data); 
-  }
- /* user.then((datax)=>{
-  })*/ 
+  const user = await response.json();
+  return user.data;
 }
 const SearchIconWrapper = styled('div')(({ theme }) => ({
   padding: theme.spacing(0, 2),
@@ -68,7 +48,6 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   color: 'inherit',
   '& .MuiInputBase-input': {
     padding: theme.spacing(1, 1, 1, 0),
-    // vertical padding + font size from searchIcon
     paddingLeft: `calc(1em + ${theme.spacing(4)})`,
     transition: theme.transitions.create('width'),
     width: '100%',
@@ -81,12 +60,19 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 
 export default function NavBarr() {
-   
+  const [Item, setItem] = useState([])
   useEffect(() => {
-      fetchNames() ;
-      console.log(items); 
-  }, [])
-   
+    setItem([]); 
+    fetchNames().then((user) => {
+      for (const child of user) {
+        const data = {
+          name: child.name,
+          email: child.email,
+        }
+        setItem(current =>[...current , data]);
+      }
+     })
+  }, []) 
   const handleOnSearch = (string, results) => {
     // onSearch will have as the first callback parameter
     // the string searched and for the second the results.
@@ -110,25 +96,17 @@ export default function NavBarr() {
   const formatResult = (item) => {
     return (
       <>
-        <span style={{ display: 'block', textAlign: 'left' }}>name: {item.name}</span>
+        <span style={{ display: 'block', textAlign: 'left' }}> {item.name}</span>
       </>
     )
   }
+  const userInfo = useContext(UserInfoContext);
 
-
-
-
-
-
-
-
-  const userInfo = useContext(UserInfoContext); 
-  
-  const [userName, setuserName] = useState("") 
+  const [userName, setuserName] = useState("")
   useEffect(() => {
-    setuserName( userInfo.userInfo.Name); 
+    setuserName(userInfo.userInfo.Name);
   }, [])
-  
+
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
   const isMenuOpen = Boolean(anchorEl);
@@ -137,33 +115,33 @@ export default function NavBarr() {
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
   };
-  
+
   const handleMobileMenuClose = () => {
     setMobileMoreAnchorEl(null);
   };
-  
+
   const handleMenuClose = () => {
     Router.push('/ProfilePage')
     setAnchorEl(null);
     handleMobileMenuClose();
   };
-  
+
   const handleMobileMenuOpen = (event) => {
     setMobileMoreAnchorEl(event.currentTarget);
   };
-  
+
   const menuId = 'primary-search-account-menu';
   const renderMenu = (
     <Menu
-    anchorEl={anchorEl}
-    anchorOrigin={{
-      vertical: 'top',
-      horizontal: 'right',
-    }}
-    id={menuId}
-    keepMounted
-    transformOrigin={{
-      vertical: 'top',
+      anchorEl={anchorEl}
+      anchorOrigin={{
+        vertical: 'top',
+        horizontal: 'right',
+      }}
+      id={menuId}
+      keepMounted
+      transformOrigin={{
+        vertical: 'top',
         horizontal: 'right',
       }}
       open={isMenuOpen}
@@ -231,43 +209,52 @@ export default function NavBarr() {
       <AppBar position="static" style={{ background: '#2E3B55' }} >
         <Toolbar>
           
+
+        <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
+
           <Typography
             variant="h6"
             noWrap
             component="div"
             sx={{ display: { xs: 'none', sm: 'block' } }}
-          >
-            CHAT WITH ME
+            href="/mainpage"
+            >
+            CHATIFY
           </Typography>
-          <div className="App">
-      <header className="App-header">
-        <div style={{ paddingLeft:150 ,   width: 350 }}>
-          
-          <ReactSearchAutocomplete
-          styling={ {height: "27px"}}
-            items={items}
-          
-            fuseOptions={{ keys: ['name' , 'email' ] }}
             
-            resultStringKeyName="name"
-            onSearch={handleOnSearch}
-            onHover={handleOnHover}
-            onSelect={handleOnSelect}
-            onFocus={handleOnFocus}
-            autoFocus
-            formatResult={formatResult}
-          />
-        </div>
-      </header>
-    </div>
+          <div className="App">
+            <header className="App-header">
+              <div style={{ paddingLeft: 150, width: 400 }}>
+
+                <ReactSearchAutocomplete
+                  styling={{ height: "27px" }}
+                  items={Item}
+
+                  fuseOptions={{ keys: ['name', 'email'] }}
+
+  
+                  onSearch={handleOnSearch}
+                  onHover={handleOnHover}
+                  onSelect={handleOnSelect}
+                  onFocus={handleOnFocus}
+                  autoFocus
+                  formatResult={formatResult}
+                />
+              </div>
+            </header>
+          </div>
           <Box sx={{ flexGrow: 1 }} />
+          <div style={ {paddingRight: '10px'} }>
+          <Avatar alt="Travis Howard" src={userInfo.userInfo.Url}  />
+
+          </div>
           <Typography
             variant="h6"
             noWrap
             component="div"
             sx={{ display: { xs: 'none', sm: 'block' } }}
           >
-          {userName}  
+            {userName}
           </Typography>
           <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
             <IconButton size="large" aria-label="show 4 new mails" color="inherit">

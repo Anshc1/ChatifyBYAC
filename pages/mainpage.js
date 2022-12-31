@@ -15,9 +15,7 @@ const fetchName = async (val) => {
     },
     body: JSON.stringify({ type: 'second', UID: JSON.stringify(val.state.UID) })
   }
-
   const response = await fetch('/api/serverBackend', query);
-
   const user = await response.json();
   return user.data;
 }
@@ -27,12 +25,15 @@ function mainpage() {
   const userInfo = useContext(UserInfoContext);
   useEffect(() => {
     const func = async () => {
-      const res = await fetchName(val);
-
-      const Name = capitalizeFirstLetter(res[0].name);
-      const email = res[0].email;
-      localStorage.setItem('userName', Name);
-      localStorage.setItem('email', email);
+      await fetchName(val).then((res)=>{
+        console.log(res);  
+        const Name = capitalizeFirstLetter(res[0].name);
+        const email = res[0].email;
+        localStorage.setItem('userName', Name);
+        localStorage.setItem('email', email);
+      }).catch(()=>{
+        
+      });
       //console.log(userInfo.userInfo);
     }
     func();

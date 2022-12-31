@@ -18,13 +18,12 @@ async function serverBackend(req, res) {
     if (req.method === 'POST') {
 
         if (req.body.type === 'first') {
-
+            
             var data = new ProfileX({ name: req.body.name, email: req.body.email, UID: req.body.UID });
 
             data.save().then(() => {
                 res.send("success")
             }).catch(err => {
-                console.log(err);
                 res.status(400).send(err)
             })
         } else {

@@ -24,6 +24,10 @@ export default function App({ Component, pageProps }) {
     if(email!=null){
       initialuserInfo.email = (email); 
     }
+    const Url = window.localStorage.getItem('profilePicURL');
+    if(Url!=null){
+      initialuserInfo.Url = (Url); 
+    }
   } 
  // console.log(initialuserInfo); 
   const [UID, setUID] = useState(initialstate)
