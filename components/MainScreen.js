@@ -18,8 +18,6 @@ import { useContext, useEffect, useState } from 'react';
 
 const drawerWidth = 240;
 
-
-
 export default function MainScreen() {
   
   return (

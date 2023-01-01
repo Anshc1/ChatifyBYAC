@@ -9,19 +9,20 @@ import InputBase from '@mui/material/InputBase';
 import Badge from '@mui/material/Badge';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
-
+import HomeIcon from '@mui/icons-material/Home';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import MailIcon from '@mui/icons-material/Mail';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import MoreIcon from '@mui/icons-material/MoreVert';
 import { useContext, useEffect, useState } from 'react';
+import Button from '@mui/material/Button';
 
 import UserInfoContext from '../contexts/UserInfoContext';
 import Router from 'next/router';
 import { ReactSearchAutocomplete } from 'react-search-autocomplete'
-import { Avatar } from '@mui/material';
+import { Avatar, Hidden } from '@mui/material';
 import AdbIcon from '@mui/icons-material/Adb';
-
+import Link from 'next/link';
 const fetchNames = async () => {
 
   const query = {
@@ -77,8 +78,20 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 
 export default function NavBarr() {
+
+
+ 
+
+  const userInfo = useContext(UserInfoContext);
+  const [toHide, settoHide] = useState(false)
   const [Item, setItem] = useState([])
+  const [userAll, setuserAll] = useState({});
+
   useEffect(() => {
+    setuserAll(userInfo.userInfo);
+    if (Router.query.email !== undefined) {
+      settoHide(true);
+    }
     setItem([]);
     fetchURL().then((mp) => {
       fetchNames().then((user) => {
@@ -108,7 +121,7 @@ export default function NavBarr() {
           name: item.name,
           email: item.email,
           ProfileURL: item.ProfileURL
-        }, 
+        },
       })
   }
 
@@ -133,7 +146,6 @@ export default function NavBarr() {
       </>
     )
   });
-  const userInfo = useContext(UserInfoContext);
   const [userName, setuserName] = useState("")
   useEffect(() => {
     setuserName(userInfo.userInfo.Name);
@@ -179,7 +191,7 @@ export default function NavBarr() {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
+      <MenuItem onClick={handleMenuClose} disabled={toHide} >Profile</MenuItem>
       <MenuItem onClick={handleMenuClose}>Verify My account</MenuItem>
     </Menu>
   );
@@ -240,21 +252,30 @@ export default function NavBarr() {
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static" style={{ background: '#2E3B55' }} >
         <Toolbar>
-          <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
-
+        <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
           <Typography
             variant="h6"
             noWrap
-            component="div"
-            sx={{ display: { xs: 'none', sm: 'block' } }}
+            component="a"
             href="/mainpage"
+            sx={{
+              mr: 2,
+              display: { xs: 'none', md: 'flex' },
+              fontFamily: 'monospace',
+              fontWeight: 700,
+              letterSpacing: '.3rem',
+              color: 'inherit',
+              textDecoration: 'none',
+            }}
           >
-            CHATIFY
+            Chatify
           </Typography>
 
+
+              
           <div className="App">
             <header className="App-header">
-              <div style={{ paddingLeft: 150, width: 500 }}>
+              <div style={{ paddingLeft: 150, width: 500 } }  hidden = {toHide}>
 
                 <ReactSearchAutocomplete
                   styling={{ height: "27px" }}
@@ -273,7 +294,7 @@ export default function NavBarr() {
           </div>
           <Box sx={{ flexGrow: 1 }} />
           <div style={{ paddingRight: '10px' }}>
-            <Avatar alt="Travis Howard" />
+            <Avatar alt="Travis Howard" src = {userAll.Url} />
 
           </div>
           <Typography
@@ -328,5 +349,5 @@ export default function NavBarr() {
       {renderMobileMenu}
       {renderMenu}
     </Box>
-  );
+  )
 }
