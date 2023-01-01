@@ -9,14 +9,13 @@ import InputBase from '@mui/material/InputBase';
 import Badge from '@mui/material/Badge';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
-import MenuIcon from '@mui/icons-material/Menu';
-import SearchIcon from '@mui/icons-material/Search';
+
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import MailIcon from '@mui/icons-material/Mail';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import MoreIcon from '@mui/icons-material/MoreVert';
 import { useContext, useEffect, useState } from 'react';
-import Authcontext from '../contexts/Authcontext';
+
 import UserInfoContext from '../contexts/UserInfoContext';
 import Router from 'next/router';
 import { ReactSearchAutocomplete } from 'react-search-autocomplete'
@@ -97,29 +96,30 @@ export default function NavBarr() {
   const handleOnSearch = (string, results) => {
     console.log(string, results)
   }
-
   const handleOnHover = (result) => {
     console.log(result)
   }
 
   const handleOnSelect = (item) => {
-    console.log(item)
+    Router.push(
+      {
+        pathname: '/ProfilePage',
+        query: {
+          name: item.name,
+          email: item.email,
+          ProfileURL: item.ProfileURL
+        }, 
+      })
   }
 
   const handleOnFocus = () => {
     console.log('Focused')
   }
-  const handleOnClick = (e) => {
-    e.preventDefault()
-
-    Router.push(href); 
-  }
 
   const formatResult = (item => {
     return (
       <>
-        <a href="/ProfilePage"
-         onClick={handleOnClick}>
+        <a href='/ProfilePage'>
           <div style={{ display: 'flex', flexDirection: 'row' }} >
             <Avatar
               alt="Remy Sharp"
@@ -129,14 +129,11 @@ export default function NavBarr() {
             <span style={{ display: 'block', textAlign: 'left', paddingLeft: '5px' }}> {item.name}</span>
           </div>
         </a>
-
-
         <span style={{ display: 'block', textAlign: 'left' }}> {item.email}</span>
       </>
     )
   });
   const userInfo = useContext(UserInfoContext);
-
   const [userName, setuserName] = useState("")
   useEffect(() => {
     setuserName(userInfo.userInfo.Name);

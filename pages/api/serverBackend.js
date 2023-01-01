@@ -38,6 +38,7 @@ async function serverBackend(req, res) {
     } else {
         try {
             const users = await ProfileX.find({});
+            console.log(users); 
             res.status(201).json({ success: true, data: users });
         } catch (error) {
             res.status(400).json({ success: false, error: error });

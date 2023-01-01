@@ -1,38 +1,88 @@
-import React, { useContext, useRef } from 'react';
-import { MDBCol, MDBContainer, MDBRow, MDBCard, MDBCardText, MDBCardBody, MDBCardImage, MDBBtn, MDBTypography } from 'mdb-react-ui-kit';
+import React, {
+    useContext,
+    useRef
+} from 'react';
+import {
+    MDBCol,
+    MDBContainer,
+    MDBRow,
+    MDBCard,
+    MDBCardText,
+    MDBCardBody,
+    MDBCardImage,
+    MDBBtn,
+    MDBTypography
+} from 'mdb-react-ui-kit';
 import UserInfoContext from '../contexts/UserInfoContext';
-import { useState, useEffect } from 'react';
-import { Button } from '@mui/material';
-import { initializeApp } from "firebase/app";
-import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { firebaseConfig } from '../firbaseconfig';
+import {
+    useState,
+    useEffect
+} from 'react';
+import {
+    Button
+} from '@mui/material';
+import {
+    initializeApp
+} from "firebase/app";
+import {
+    getStorage,
+    ref,
+    uploadBytesResumable,
+    getDownloadURL
+} from "firebase/storage";
+import {
+    firebaseConfig
+} from '../firbaseconfig';
 import Authcontext from '../contexts/Authcontext';
 import Image from 'next/image';
-import { maxHeight } from '@mui/system';
-
+import {
+    maxHeight
+} from '@mui/system';
+import Router from 'next/router';
 const app = initializeApp(firebaseConfig);
 
 
 
-export default function ProfileComponent(props) {
+export default function ProfileComponent() {
+    
+    const [toHide, settoHide] = useState(false)
     const userInfo = useContext(UserInfoContext);
     const [userName, setuserName] = useState("")
     const [Email, setEmail] = useState("")
     const auth = useContext(Authcontext);
+    const [picURL, setpicURL] = useState('https://firebasestorage.googleapis.com/v0/b/chatifybyac.appspot.com/o/images%2Funknown-male-person-eps-10-vector-13383958.jpg?alt=media&token=4b94f2d6-e697-4ea7-b874-ab519bd3f141');
     useEffect(() => {
-        setuserName(userInfo.userInfo.Name);
-        setEmail(userInfo.userInfo.email)
+        console.log(Router.query.name); 
+        if (Router.query.name !== undefined) {
+            console.log(Router.query.name);
+            setEmail(Router.query.email);
+            setuserName(Router.query.name);
+            if(userInfo.userInfo.email !== Router.query.email){
+                settoHide(true); 
+            }
+            if(Router.query.ProfileURL === ''){
+                setpicURL('https://firebasestorage.googleapis.com/v0/b/chatifybyac.appspot.com/o/images%2Funknown-male-person-eps-10-vector-13383958.jpg?alt=media&token=4b94f2d6-e697-4ea7-b874-ab519bd3f141')
+            }else{
+                setpicURL(Router.query.ProfileURL)
+            }
+        }
+        else{
+            setuserName(userInfo.userInfo.Name);
+            setEmail(userInfo.userInfo.email)
+            if (typeof window !== 'undefined') {
+                const local = window.localStorage.getItem('profilePicURL');
+                if (local != null) {
+                    setpicURL(local)
+                }
+            }
+        }
+        
     }, [])
 
-    const [picURL, setpicURL] = useState('https://firebasestorage.googleapis.com/v0/b/chatifybyac.appspot.com/o/images%2Funknown-male-person-eps-10-vector-13383958.jpg?alt=media&token=4b94f2d6-e697-4ea7-b874-ab519bd3f141');
-    
-    
-    
     const handleOnchange = (e) => {
         const storage = getStorage(app);
         const storageRef = ref(storage, 'images/' + userName);
         const uploadTask = uploadBytesResumable(storageRef, e.target.files[0]);
-
         uploadTask.on('state_changed',
             (snapshot) => {
                 // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
@@ -68,9 +118,13 @@ export default function ProfileComponent(props) {
                     const data = {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json', 'Accept': 'application/json'
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
                         },
-                        body: JSON.stringify({ UID: UID, URL: URL })
+                        body: JSON.stringify({
+                            UID: UID,
+                            URL: URL
+                        })
                     }
                     const response = fetch('/api/serverBackendImage', data);
                     localStorage.setItem('profilePicURL', downloadURL);
@@ -81,24 +135,7 @@ export default function ProfileComponent(props) {
         );
 
     }
-    useEffect(() => {
-
-        if (typeof window !== 'undefined') {
-            const local = window.localStorage.getItem('profilePicURL');
-            console.log({ 'this': local });
-            if (local != null) {
-                setpicURL(local)
-            }
-        }
-
-        if(props.PageProps===null){
-            console.log(props);
-            setEmail(props.email); 
-            setuserName(props.name); 
-            setpicURL(props.ProfileURL)
-        }
-
-    }, [])
+   
     return (
 
         <div>
@@ -108,14 +145,14 @@ export default function ProfileComponent(props) {
                         <MDBCol lg="9" xl="7">
                             <MDBCard>
                                 <div className="rounded-top text-white d-flex flex-row" style={{ backgroundColor: '#000', height: '200px' }}>
-                                    <div className="ms-4 mt-5 d-flex flex-column" style={{ width: '150px',  }}>
+                                    <div className="ms-4 mt-5 d-flex flex-column" style={{ width: '150px', }}>
                                         <MDBCardImage src={picURL}
-                                            alt="Generic placeholder image" className="mt-4 mb-2 img-thumbnail" style={{ maxwidth: '100px', zIndex: '1' , maxHeight: '150px' }} />
-                                            <Button variant="outlined" component="label" style={{ width: '150px' }}>
-                                                Update Pic
-                                                <input hidden accept="image/*" multiple type="file" onChange={handleOnchange} />
-                                            </Button>
-                     
+                                            alt="Generic placeholder image" className="mt-4 mb-2 img-thumbnail" style={{ maxwidth: '100px', zIndex: '1', maxHeight: '150px' }} />
+                                        <Button variant="outlined" component="label" style={{ width: '150px' }} hidden={toHide}>
+                                            Update Pic
+                                            <input hidden accept="image/*" multiple type="file" onChange={handleOnchange} />
+                                        </Button>
+
                                     </div>
                                     <div className="ms-3" style={{ marginTop: '130px' }}>
                                         <MDBTypography tag="h5">{userName}</MDBTypography>
