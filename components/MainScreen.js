@@ -22,7 +22,7 @@ export default function MainScreen() {
   
   return (
     <div>
-      <Box sx={{ display: 'flex'}} >
+      <Box sx={{ display: 'flex' }} >
         <CssBaseline />
         <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
           <NavBarr />
@@ -36,9 +36,9 @@ export default function MainScreen() {
           }}
         >
           <Toolbar />
-          <Box sx={{ overflow: 'auto'  }}  >
+          <Box sx={{ overflow: 'auto' }}  >
             <List>
-              {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
+              {['Friends'].map((text, index) => (
                 <ListItem key={text} disablePadding>
                   <ListItemButton>
                     <ListItemIcon>
@@ -66,7 +66,6 @@ export default function MainScreen() {
         </Drawer>
         <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
           <Toolbar />
-
         </Box>
       </Box>
     </div>

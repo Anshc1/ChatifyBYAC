@@ -39,34 +39,37 @@ import {
     maxHeight
 } from '@mui/system';
 import Router from 'next/router';
+import { Padding } from '@mui/icons-material';
 const app = initializeApp(firebaseConfig);
 
 
 
 export default function ProfileComponent() {
-    
+
     const [toHide, settoHide] = useState(false)
+    const [toHide1, settoHide1] = useState(true)    
     const userInfo = useContext(UserInfoContext);
     const [userName, setuserName] = useState("")
     const [Email, setEmail] = useState("")
     const auth = useContext(Authcontext);
     const [picURL, setpicURL] = useState('https://firebasestorage.googleapis.com/v0/b/chatifybyac.appspot.com/o/images%2Funknown-male-person-eps-10-vector-13383958.jpg?alt=media&token=4b94f2d6-e697-4ea7-b874-ab519bd3f141');
     useEffect(() => {
-        console.log(Router.query.name); 
+        console.log(Router.query.name);
         if (Router.query.name !== undefined) {
+            if (userInfo.userInfo.email !== Router.query.email) {
+                settoHide(true);
+                settoHide1(false); 
+            }
             console.log(Router.query.name);
             setEmail(Router.query.email);
             setuserName(Router.query.name);
-            if(userInfo.userInfo.email !== Router.query.email){
-                settoHide(true); 
-            }
-            if(Router.query.ProfileURL === ''){
+            if (Router.query.ProfileURL === '') {
                 setpicURL('https://firebasestorage.googleapis.com/v0/b/chatifybyac.appspot.com/o/images%2Funknown-male-person-eps-10-vector-13383958.jpg?alt=media&token=4b94f2d6-e697-4ea7-b874-ab519bd3f141')
-            }else{
+            } else {
                 setpicURL(Router.query.ProfileURL)
             }
         }
-        else{
+        else {
             setuserName(userInfo.userInfo.Name);
             setEmail(userInfo.userInfo.email)
             if (typeof window !== 'undefined') {
@@ -76,7 +79,7 @@ export default function ProfileComponent() {
                 }
             }
         }
-        
+
     }, [])
 
     const handleOnchange = (e) => {
@@ -114,7 +117,6 @@ export default function ProfileComponent() {
                 getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
                     const UID = auth.state.UID;
                     const URL = downloadURL;
-
                     const data = {
                         method: 'POST',
                         headers: {
@@ -123,7 +125,8 @@ export default function ProfileComponent() {
                         },
                         body: JSON.stringify({
                             UID: UID,
-                            URL: URL
+                            URL: URL, 
+                            type:'1'  
                         })
                     }
                     const response = fetch('/api/serverBackendImage', data);
@@ -135,7 +138,26 @@ export default function ProfileComponent() {
         );
 
     }
-   
+    const handleaddfriend= async()=>{
+        const query = { 
+            method :"POST" , 
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body : JSON.stringify(
+                {
+                    type : '1' , 
+                    email1 : Router.query.email , 
+                    email2 : userInfo.userInfo.email,  
+                }
+            )
+        }   
+        await fetch('/api/serverBackendRelationship' , query).then(()=>{
+            alert('Friend request sent'); 
+        })
+    }
+
     return (
 
         <div>
@@ -146,13 +168,13 @@ export default function ProfileComponent() {
                             <MDBCard>
                                 <div className="rounded-top text-white d-flex flex-row" style={{ backgroundColor: '#000', height: '200px' }}>
                                     <div className="ms-4 mt-5 d-flex flex-column" style={{ width: '150px', }}>
-                                        <MDBCardImage src={picURL}
-                                            alt="Generic placeholder image" className="mt-4 mb-2 img-thumbnail" style={{ maxwidth: '100px', zIndex: '1', maxHeight: '150px' }} />
-                                        <Button variant="outlined" component="label" style={{ width: '150px' }} hidden={toHide}>
+                                        <div style={{ height: 170 }}>
+                                            <Image loader={() => picURL} src={picURL} width={150} height={170} />
+                                        </div>
+                                        <Button variant="outlined" component="label" style={{ width: '150px', marginTop: '10px' }} hidden={toHide}>
                                             Update Pic
                                             <input hidden accept="image/*" multiple type="file" onChange={handleOnchange} />
                                         </Button>
-
                                     </div>
                                     <div className="ms-3" style={{ marginTop: '130px' }}>
                                         <MDBTypography tag="h5">{userName}</MDBTypography>
@@ -161,7 +183,9 @@ export default function ProfileComponent() {
                                 </div>
                                 <div className="p-4 text-black" style={{ backgroundColor: '#f8f9fa' }}>
                                     <div className="d-flex justify-content-end text-center py-1">
-
+                                        <Button onClick={handleaddfriend} variant="outlined" component="label" style={{ width: '150px', marginTop: '10px' }} hidden={toHide1}>
+                                            Add Friend
+                                        </Button>
                                     </div>
                                 </div>
                                 <MDBCardBody className="text-black p-4">

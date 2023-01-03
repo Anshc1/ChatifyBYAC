@@ -1,6 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react'
 import Authcontext from '../contexts/Authcontext'
-import NavBarr from '../components/NavBarr';
 import MainScreen from '../components/MainScreen';
 import UserInfoContext from '../contexts/UserInfoContext';
 
@@ -26,7 +25,6 @@ function mainpage() {
   useEffect(() => {
     const func = async () => {
       await fetchName(val).then((res)=>{
-  
         const Name = capitalizeFirstLetter(res[0].name);
         const email = res[0].email;
         localStorage.setItem('userName', Name);
@@ -34,7 +32,6 @@ function mainpage() {
       }).catch(()=>{
         
       });
-      //console.log(userInfo.userInfo);
     }
     func();
   }, [])

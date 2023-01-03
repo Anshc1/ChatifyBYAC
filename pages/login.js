@@ -56,6 +56,7 @@ export default function login() {
       },
       body: JSON.stringify({ email, password })
     }
+
     const response = await fetch("/api/loginapi", req);
     const datax = await response.json();
     const uid = JSON.stringify(datax.obj.uid);

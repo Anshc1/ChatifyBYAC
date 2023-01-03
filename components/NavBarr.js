@@ -15,14 +15,14 @@ import MailIcon from '@mui/icons-material/Mail';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import MoreIcon from '@mui/icons-material/MoreVert';
 import { useContext, useEffect, useState } from 'react';
-import Button from '@mui/material/Button';
-
 import UserInfoContext from '../contexts/UserInfoContext';
 import Router from 'next/router';
 import { ReactSearchAutocomplete } from 'react-search-autocomplete'
 import { Avatar, Hidden } from '@mui/material';
 import AdbIcon from '@mui/icons-material/Adb';
-import Link from 'next/link';
+import LogoutIcon from '@mui/icons-material/Logout'
+
+
 const fetchNames = async () => {
 
   const query = {
@@ -79,13 +79,18 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 export default function NavBarr() {
 
-
- 
-
   const userInfo = useContext(UserInfoContext);
   const [toHide, settoHide] = useState(false)
   const [Item, setItem] = useState([])
   const [userAll, setuserAll] = useState({});
+
+
+  const handleLogout=()=>{
+    /*localStorage.setItem('name' ,); 
+    localStorage.setItem('email' , );
+    localStorage.setItem('profilePicURL' , );*/ 
+    Router.push('/login');  
+  }
 
   useEffect(() => {
     setuserAll(userInfo.userInfo);
@@ -252,7 +257,7 @@ export default function NavBarr() {
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static" style={{ background: '#2E3B55' }} >
         <Toolbar>
-        <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
+          <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
           <Typography
             variant="h6"
             noWrap
@@ -270,12 +275,9 @@ export default function NavBarr() {
           >
             Chatify
           </Typography>
-
-
-              
           <div className="App">
             <header className="App-header">
-              <div style={{ paddingLeft: 150, width: 500 } }  hidden = {toHide}>
+              <div style={{ paddingLeft: 150, width: 500 }} hidden={toHide}>
 
                 <ReactSearchAutocomplete
                   styling={{ height: "27px" }}
@@ -294,7 +296,7 @@ export default function NavBarr() {
           </div>
           <Box sx={{ flexGrow: 1 }} />
           <div style={{ paddingRight: '10px' }}>
-            <Avatar alt="Travis Howard" src = {userAll.Url} />
+            <Avatar alt="Travis Howard" src={userAll.Url} />
 
           </div>
           <Typography
@@ -303,9 +305,16 @@ export default function NavBarr() {
             component="div"
             sx={{ display: { xs: 'none', sm: 'block' } }}
           >
-
+            {userAll.Name}
           </Typography>
+
+
           <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
+          <IconButton size="large"  color="inherit">
+              <Badge  color="error">
+                <LogoutIcon onClick= {handleLogout} />
+              </Badge>
+            </IconButton>
             <IconButton size="large" aria-label="show 4 new mails" color="inherit">
               <Badge badgeContent={4} color="error">
                 <MailIcon />
