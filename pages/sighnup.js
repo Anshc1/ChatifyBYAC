@@ -10,7 +10,8 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import {useRouter} from 'next/router'
+import { useRouter } from 'next/router'
+import { io } from 'socket.io-client';
 function Copyright(props) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
@@ -30,14 +31,14 @@ const theme = createTheme({
   },
 });
 
-export default  function sighnUp() {
-  let router = useRouter(); 
+export default function sighnUp() {
+  let router = useRouter();
   async function handleSubmit(event) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const email = data.get('email');
     const password = data.get('password');
-    const name = data.get('firstName') + ' ' + data.get('lastName'); 
+    const name = data.get('firstName') + ' ' + data.get('lastName');
     const req = {
       method: 'POST',
       headers: {
@@ -49,21 +50,33 @@ export default  function sighnUp() {
     const response = await fetch("/api/signinapi", req);
     const DataX = await response.json();
     const UID = JSON.stringify(DataX.obj.uid)
-    if(response.status === 200){
-  
-      const dataWeHavetoSave  = {
-        method : 'POST', 
+    if (response.status === 200) {
+
+      const dataWeHavetoSave = {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json', 'Accept': 'application/json'
         },
-        body : JSON.stringify({type : 'first' ,  name : name ,  email : email  , UID : UID })
+        body: JSON.stringify({ type: 'first', name: name, email: email, UID: UID })
       }
-      const responsefromBackend= await fetch("/api/serverBackend", dataWeHavetoSave) ;      
-      console.log(responsefromBackend);  
-      router.push('/login');  
-    }else{
+      const responsefromBackend = await fetch("/api/serverBackend", dataWeHavetoSave)
+      await fetch('/api/socketidGenerator').finally(() => {
+        const socket = io()
+        console.log('enter'); 
+        socket.on('connect', () => {
+          console.log('connect')
+          socket.emit('AddId', {email: email}, (ack) => {
+            console.log(ack); 
+          });
+        })
+        socket.on('disconnect', () => {
+          console.log('disconnect')
+        })
+      })
+    } else {
       //console.log(UID); 
     }
+    router.push('/login');
   };
   return (
     <ThemeProvider theme={theme} >
@@ -127,7 +140,7 @@ export default  function sighnUp() {
                   autoComplete="new-password"
                 />
               </Grid>
-              
+
             </Grid>
             <Button
               type="submit"

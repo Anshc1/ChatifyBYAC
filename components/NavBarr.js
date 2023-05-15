@@ -15,7 +15,6 @@ import MailIcon from '@mui/icons-material/Mail';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import MoreIcon from '@mui/icons-material/MoreVert';
 import { useContext, useEffect, useState } from 'react';
-import UserInfoContext from '../contexts/UserInfoContext';
 import Router from 'next/router';
 import { ReactSearchAutocomplete } from 'react-search-autocomplete'
 import { Avatar, Hidden } from '@mui/material';
@@ -79,21 +78,22 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 export default function NavBarr() {
 
-  const userInfo = useContext(UserInfoContext);
+  
   const [toHide, settoHide] = useState(false)
   const [Item, setItem] = useState([])
-  const [userAll, setuserAll] = useState({});
+  
 
 
   const handleLogout=()=>{
-    /*localStorage.setItem('name' ,); 
-    localStorage.setItem('email' , );
-    localStorage.setItem('profilePicURL' , );*/ 
+    localStorage.setItem('uid' , null); 
+    localStorage.setItem('userName' ,null); 
+    localStorage.setItem('email' , null);
+    localStorage.setItem('profilePicURL' , null); 
     Router.push('/login');  
   }
 
   useEffect(() => {
-    setuserAll(userInfo.userInfo);
+    
     if (Router.query.email !== undefined) {
       settoHide(true);
     }
@@ -152,10 +152,14 @@ export default function NavBarr() {
     )
   });
   const [userName, setuserName] = useState("")
-  useEffect(() => {
-    setuserName(userInfo.userInfo.Name);
-  }, [])
-
+  const [userPic, setuserPic] = useState("")
+  if(typeof window !== "undefined" &&  window.localStorage.getItem('userName')!==null ){
+    useEffect(() => {
+      setuserName(window.localStorage.getItem('userName'));
+      setuserPic(window.localStorage.getItem('profilePicURL')); 
+    }, [])
+  }
+    
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
   const isMenuOpen = Boolean(anchorEl);
@@ -275,14 +279,15 @@ export default function NavBarr() {
           >
             Chatify
           </Typography>
-          <div className="App">
+
+
+          <div className="App" >
             <header className="App-header">
-              <div style={{ paddingLeft: 150, width: 500 }} hidden={toHide}>
+              <div style={{ paddingLeft: 150, width: 500  }} hidden={toHide}>
 
                 <ReactSearchAutocomplete
-                  styling={{ height: "27px" }}
+                  styling={{ height: "27px" , zIndex:1000}}
                   items={Item}
-
                   fuseOptions={{ keys: ['name', 'email'] }}
                   onSearch={handleOnSearch}
                   onHover={handleOnHover}
@@ -294,18 +299,20 @@ export default function NavBarr() {
               </div>
             </header>
           </div>
-          <Box sx={{ flexGrow: 1 }} />
-          <div style={{ paddingRight: '10px' }}>
-            <Avatar alt="Travis Howard" src={userAll.Url} />
 
+          <Box sx={{ flexGrow: 1 }} />
+          
+          <div style={{ paddingRight: '10px' }}>
+            <Avatar alt="Travis Howard" src={userPic} />
           </div>
+
           <Typography
             variant="h6"
             noWrap
             component="div"
             sx={{ display: { xs: 'none', sm: 'block' } }}
           >
-            {userAll.Name}
+            {userName}
           </Typography>
 
 

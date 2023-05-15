@@ -10,11 +10,13 @@ export default function App({ Component, pageProps }) {
     Name: "", 
     email:"", 
     Url : "",
+    UID : "", 
   }
-  if (typeof window !== 'undefined') {
+  /*if (typeof window !== 'undefined' ) {
     const local = window.localStorage.getItem('name');
+    console.log(local); 
     if(local!=null){
-      initialstate = JSON.parse(local); 
+      initialstate = (local); 
     }
     const userName = window.localStorage.getItem('userName');
     if(userName!=null){
@@ -29,17 +31,13 @@ export default function App({ Component, pageProps }) {
       initialuserInfo.Url = (Url); 
     }
   } 
+  */
  // console.log(initialuserInfo); 
-  const [UID, setUID] = useState(initialstate)
-  const [userInfo, setuserInfo] = useState(initialuserInfo);  
-  const funUpd=(state)=>{
-    setuserInfo(state); 
-  }
+  const [UserInfo, setUserInfo] = useState(initialuserInfo)
+
   return (
-  <UserInfoContext.Provider value = {{userInfo : userInfo , setuserInfo : funUpd} }>
-   <Authcontext.Provider value= {{state:{UID:  UID }  , setUID : setUID}}>
+   <Authcontext.Provider value= { {UserInfo  , setUserInfo  }}>
        <Component {...pageProps} />
     </Authcontext.Provider>
-  </UserInfoContext.Provider>
   )
 }

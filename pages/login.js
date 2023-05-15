@@ -42,7 +42,7 @@ export default function login() {
 
   let router = useRouter();
 
-  const vals = useContext(Authcontext);
+  
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -64,8 +64,8 @@ export default function login() {
       console.log("error");
     }
     else if (response.status === 200) {
-      vals.setUID(uid);
-      localStorage.setItem("name", uid );
+      localStorage.setItem("uid", uid );
+      localStorage.setItem("email",email); 
       router.push('/mainpage');
     } else {
       console.log("error")

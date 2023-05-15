@@ -13,7 +13,7 @@ import {
     MDBBtn,
     MDBTypography
 } from 'mdb-react-ui-kit';
-import UserInfoContext from '../contexts/UserInfoContext';
+
 import {
     useState,
     useEffect
@@ -42,40 +42,46 @@ import Router from 'next/router';
 import { Padding } from '@mui/icons-material';
 const app = initializeApp(firebaseConfig);
 
+import { io } from 'socket.io-client';
+
+
 
 
 export default function ProfileComponent() {
 
     const [toHide, settoHide] = useState(false)
-    const [toHide1, settoHide1] = useState(true)    
-    const userInfo = useContext(UserInfoContext);
+    const [toHide1, settoHide1] = useState(true)
     const [userName, setuserName] = useState("")
     const [Email, setEmail] = useState("")
     const auth = useContext(Authcontext);
+    const [check, setcheck] = useState(false)
     const [picURL, setpicURL] = useState('https://firebasestorage.googleapis.com/v0/b/chatifybyac.appspot.com/o/images%2Funknown-male-person-eps-10-vector-13383958.jpg?alt=media&token=4b94f2d6-e697-4ea7-b874-ab519bd3f141');
     useEffect(() => {
-        console.log(Router.query.name);
-        if (Router.query.name !== undefined) {
-            if (userInfo.userInfo.email !== Router.query.email) {
-                settoHide(true);
-                settoHide1(false); 
+        if (typeof window !== "undefined") {
+            const emaill = window.localStorage.getItem("email");
+            if (Router.query.email !== undefined) {
+                if (emaill !== Router.query.email) {
+                    settoHide(true);
+                    settoHide1(false);
+                }
+                setEmail(Router.query.email);
+                setuserName(Router.query.name);
+                console.log(Router.query.ProfileURL)
+                if (Router.query.ProfileURL === "") {
+                    setpicURL('https://firebasestorage.googleapis.com/v0/b/chatifybyac.appspot.com/o/images%2Funknown-male-person-eps-10-vector-13383958.jpg?alt=media&token=4b94f2d6-e697-4ea7-b874-ab519bd3f141')
+                } else {
+                    setpicURL(Router.query.ProfileURL)
+                }
             }
-            console.log(Router.query.name);
-            setEmail(Router.query.email);
-            setuserName(Router.query.name);
-            if (Router.query.ProfileURL === '') {
-                setpicURL('https://firebasestorage.googleapis.com/v0/b/chatifybyac.appspot.com/o/images%2Funknown-male-person-eps-10-vector-13383958.jpg?alt=media&token=4b94f2d6-e697-4ea7-b874-ab519bd3f141')
-            } else {
-                setpicURL(Router.query.ProfileURL)
-            }
-        }
-        else {
-            setuserName(userInfo.userInfo.Name);
-            setEmail(userInfo.userInfo.email)
-            if (typeof window !== 'undefined') {
-                const local = window.localStorage.getItem('profilePicURL');
-                if (local != null) {
-                    setpicURL(local)
+            else {
+                console.log(window.localStorage.getItem('email'))
+                setuserName(window.localStorage.getItem('userName'));
+                setEmail(window.localStorage.getItem('email'))
+                if (typeof window !== 'undefined') {
+                    const local = window.localStorage.getItem('profilePicURL');
+                    if (local != null) {
+                        setpicURL(local)
+                    }
                 }
             }
         }
@@ -115,48 +121,57 @@ export default function ProfileComponent() {
             },
             () => {
                 getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                    const UID = auth.state.UID;
-                    const URL = downloadURL;
-                    const data = {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            UID: UID,
-                            URL: URL, 
-                            type:'1'  
-                        })
+                    if (typeof window !== "undefined") {
+                        const UID = window.localStorage.getItem("uid");
+                        const URL = downloadURL;
+                        const data = {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                UID: UID,
+                                URL: URL,
+                                type: '1'
+                            })
+                        }
+                        const response = fetch('/api/serverBackendImage', data);
+                        localStorage.setItem('profilePicURL', downloadURL);
+                        console.log('File available at', downloadURL);
                     }
-                    const response = fetch('/api/serverBackendImage', data);
-                    localStorage.setItem('profilePicURL', downloadURL);
-                    console.log('File available at', downloadURL);
-
                 });
             }
         );
+    }
+
+
+    const handleaddfriend = async () => {
+        const query = {
+            body:
+            {
+                type: '1',
+                email1: Router.query.email,
+                email2: userInfo.userInfo.email,
+            }
+        }
+        fetch('/api/serverBackendRelationship').finally(() => {
+            const socket = io()
+            socket.on('connect', () => {
+                console.log('connect')
+            })
+            socket.emit('friend request sent', query, (ack) => {
+                console.log(ack);
+            });
+
+            socket.on('disconnect', () => {
+                console.log('disconnect')
+            })
+        })
 
     }
-    const handleaddfriend= async()=>{
-        const query = { 
-            method :"POST" , 
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body : JSON.stringify(
-                {
-                    type : '1' , 
-                    email1 : Router.query.email , 
-                    email2 : userInfo.userInfo.email,  
-                }
-            )
-        }   
-        await fetch('/api/serverBackendRelationship' , query).then(()=>{
-            alert('Friend request sent'); 
-        })
-    }
+
+
 
     return (
 

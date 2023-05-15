@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 mongoose.connect('mongodb://127.0.0.1:27017/', {
-    dbName: 'ProfileImages',
+    dbName: 'ProfileX',
     useNewUrlParser: true,
     useUnifiedTopology: true
 }, err => err ? console.log(err) : "DONE");
@@ -12,7 +12,7 @@ const ProfileSchema = new mongoose.Schema({
 var ProfilesImages = mongoose.models.profileImages || mongoose.model('profileImages', ProfileSchema);
 ProfilesImages.createIndexes();
 
-async function serverBackend(req, res) {
+async function serverBackendImage(req, res) {
     if (req.method === 'POST') {
         if(req.body.type === '1'){
             await ProfilesImages.deleteMany({UID : req.body.UID})
@@ -31,7 +31,7 @@ async function serverBackend(req, res) {
         }
     }else{
         await ProfilesImages.find({}).then((data)=>{
-            console.log(data)
+            //console.log(data)
             res.status(200).send(data);  
         }).catch(err=>{
             console.log(err); 
@@ -40,4 +40,4 @@ async function serverBackend(req, res) {
     }
 }
 
-export default serverBackend
+export default serverBackendImage

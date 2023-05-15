@@ -28,7 +28,7 @@ async function serverBackend(req, res) {
             })
         } else {
             try {
-                const q = (req.body.UID);
+                const q = JSON.stringify(req.body.UID);
                 const user = await ProfileX.find({ UID: q });
                 res.status(201).json({ success: true, data: user });
             } catch (error) {
@@ -38,7 +38,7 @@ async function serverBackend(req, res) {
     } else {
         try {
             const users = await ProfileX.find({});
-            console.log(users); 
+            //console.log(users); 
             res.status(201).json({ success: true, data: users });
         } catch (error) {
             res.status(400).json({ success: false, error: error });

@@ -1,3 +1,5 @@
+
+import { Server } from 'socket.io';
 const mongoose = require('mongoose');
 
 mongoose.connect('mongodb://127.0.0.1:27017/', {
@@ -10,14 +12,56 @@ const contactSchema = new mongoose.Schema({
     email2: String,
     Status: Boolean,
 });
+const SidSchema = new mongoose.Schema({
+    email : String ,  
+    SID : String 
+})
 var contact = mongoose.models.contact || mongoose.model('contact', contactSchema);
+var SIDs = mongoose.models.SIDs || mongoose.model('SIDs' ,SidSchema ) ; 
 contact.createIndexes();
-async function serverBackendRelationship(req, res) {
-    var val ; 
-    if (req.method === 'GET') {
+SIDs.createIndexes();
+
+
+const serverBackendRelationship = (req, res) => {
+    if (!res.socket.server.io) {
+        console.log('*First use, starting socket.io')
+        const io = new Server(res.socket.server)
+        io.on('connection', socket => {
+            socket.on('hello', msg => {
+                socket.emit('hello', 'world!')
+            })
+        })
+        res.socket.server.io = io
+    } else {
+        var data;
+        var result; 
+        res.socket.server.io.on('connection', socket => {
+            socket.on('friend request sent', (arg, callback) => {
+                SIDs.find({ email: arg.body.email1 }).then((reso) => {
+                    data = JSON.stringify(reso)  
+                    result = JSON.parse(data); 
+                    //console.log(result[0].SID); 
+                    socket.broadcast.to(result[0].SID).emit('send Frequest', arg.body.email ); 
+                }) 
+                callback('got it')
+            })
+        })
+        /*const fun = async (data) => {
+            console.log(data.email1);
+            await SIDs.find({ email: data.email1 }).then((reso) => {
+                console.log(reso);
+            })
+        }*/
+        //console.log({'data': data}); 
+        //console.log('socket.io already running')
+    }
+    res.end()
+
+    /*if (req.method === 'GET') {
         console.log("vis"); 
     } else { 
         if (req.body.type === '1') {
+
             const data = {
                 email1: req.body.email1,
                 email2: req.body.email2,
@@ -56,9 +100,8 @@ async function serverBackendRelationship(req, res) {
                 email2: req.body.email2,
                 Status: true,
             }
-            
         }
-    }
+    }*/
 }
 
 export default serverBackendRelationship
