@@ -34,6 +34,7 @@ const fetchPUrl = async (val) => {
   return user[0].URL;
 }
 function mainpage() {
+  const [flist, setflist] = useState([]);
 
   if (typeof window !== "undefined") {
     const val = window.localStorage.getItem('uid');
@@ -53,33 +54,60 @@ function mainpage() {
           console.log(err);
         })
       }
-      const connectTosocket = async () => {
 
+
+
+      const fetchFlist = async () => {
+        setflist([])
         if (typeof window !== "undefined") {
-          const email = window.localStorage.getItem("email"); 
-          await fetch('/api/socketidGenerator').finally(() => { 
-            const socket = io()
-            socket.on('connect', () => {
-              console.log('connect')
+
+          const query = {
+            method: "POST",
+            headers: {
+              'Content-Type': 'application/json', 'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+              type: "4",
+              email: window.localStorage.getItem("email")
             })
-            socket.emit('connection id' , {email : email } , (ack)=>{
-              console.log(ack); 
-            } )          
-            socket.on('disconnect', () => {
-              console.log('disconnect')
+          }
+          const res = await fetch('/api/serverBackendRelationship', query);
+
+          await res.json().then((data) => {
+            data.forEach(element => {
+                setflist(current=>[...current , element]); 
+              }) 
             })
-          
-          })
+          }
         }
-      }
-      func();
-      connectTosocket();
+        fetchFlist();
+        
+        /*const connectTosocket = async () => {
+          
+          if (typeof window !== "undefined") {
+            const email = window.localStorage.getItem("email"); 
+            await fetch('/api/socketidGenerator').finally(() => { 
+              const socket = io()
+              socket.on('connect', () => {
+                console.log('connect')
+              })
+              socket.emit('connection id' , {email : email } , (ack)=>{
+                console.log(ack); 
+              } )          
+              socket.on('disconnect', () => {
+                console.log('disconnect')
+              })
+              
+            })
+          }
+        }
+        connectTosocket();*/
+        func();
     }, [])
   }
-
   return (
     <>
-      <MainScreen />
+      <MainScreen props = {flist} />
     </>
   )
 }

@@ -14,12 +14,12 @@ import ListItemText from '@mui/material/ListItemText';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
 import NavBarr from './NavBarr';
-import { useContext, useEffect, useState } from 'react';
+
 
 const drawerWidth = 240;
 
-export default function MainScreen() {
-  
+export default function MainScreen(props) {
+  console.log(props.props); 
   return (
     <div>
       <Box sx={{ display: 'flex' }} >
@@ -38,16 +38,15 @@ export default function MainScreen() {
           <Toolbar />
           <Box sx={{ overflow: 'auto' }}  >
             <List>
-              {['Friends'].map((text, index) => (
-                <ListItem key={text} disablePadding>
-                  <ListItemButton>
-                    <ListItemIcon>
-                      {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                    </ListItemIcon>
-                    <ListItemText primary={text} />
-                  </ListItemButton>
-                </ListItem>
-              ))}
+              {
+              
+              props.props.forEach(element => {
+                  <div>
+                    console.log(element.email2)
+                    {element.email2}
+                  </div>
+              })  
+            }
             </List>
             <Divider />
             <List>

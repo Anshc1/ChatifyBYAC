@@ -147,27 +147,22 @@ export default function ProfileComponent() {
 
 
     const handleaddfriend = async () => {
-        const query = {
-            body:
-            {
-                type: '1',
-                email1: Router.query.email,
-                email2: userInfo.userInfo.email,
+        if (typeof window !== "undefined") {
+            const query = {
+                method : 'POST', 
+                headers: {
+                    'Content-Type': 'application/json', 'Accept': 'application/json'
+                },
+                body:
+                JSON.stringify({
+                    type: '1',
+                    email1: Router.query.email,
+                    email2: window.localStorage.getItem('email'),
+                })
             }
+            const response = await fetch('/api/serverBackendRelationship', query);
+            console.log(response) ; 
         }
-        fetch('/api/serverBackendRelationship').finally(() => {
-            const socket = io()
-            socket.on('connect', () => {
-                console.log('connect')
-            })
-            socket.emit('friend request sent', query, (ack) => {
-                console.log(ack);
-            });
-
-            socket.on('disconnect', () => {
-                console.log('disconnect')
-            })
-        })
 
     }
 
