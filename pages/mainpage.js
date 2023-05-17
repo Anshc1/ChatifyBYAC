@@ -58,7 +58,7 @@ function mainpage() {
 
 
       const fetchFlist = async () => {
-        setflist([])
+
         if (typeof window !== "undefined") {
 
           const query = {
@@ -72,42 +72,41 @@ function mainpage() {
             })
           }
           const res = await fetch('/api/serverBackendRelationship', query);
-
-          await res.json().then((data) => {
-            data.forEach(element => {
-                setflist(current=>[...current , element]); 
-              }) 
-            })
-          }
+          const data = await res.json();
+          setflist([])
+          data.forEach(element => {
+            setflist(current => [...current, { email : element.email2 ,status: element.Status }]);
+          })
         }
-        fetchFlist();
+      }
+      fetchFlist();
+      /*const connectTosocket = async () => {
         
-        /*const connectTosocket = async () => {
-          
-          if (typeof window !== "undefined") {
-            const email = window.localStorage.getItem("email"); 
-            await fetch('/api/socketidGenerator').finally(() => { 
-              const socket = io()
-              socket.on('connect', () => {
-                console.log('connect')
-              })
-              socket.emit('connection id' , {email : email } , (ack)=>{
-                console.log(ack); 
-              } )          
-              socket.on('disconnect', () => {
-                console.log('disconnect')
-              })
-              
+        if (typeof window !== "undefined") {
+          const email = window.localStorage.getItem("email"); 
+          await fetch('/api/socketidGenerator').finally(() => { 
+            const socket = io()
+            socket.on('connect', () => {
+              console.log('connect')
             })
-          }
+            socket.emit('connection id' , {email : email } , (ack)=>{
+              console.log(ack); 
+            } )          
+            socket.on('disconnect', () => {
+              console.log('disconnect')
+            })
+            
+          })
         }
-        connectTosocket();*/
-        func();
+      }
+      connectTosocket();*/
+      func();
     }, [])
   }
+  console.log(flist);
   return (
     <>
-      <MainScreen props = {flist} />
+      <MainScreen props={flist} />
     </>
   )
 }

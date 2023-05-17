@@ -1,7 +1,6 @@
 
-import { Server } from 'socket.io';
 const mongoose = require('mongoose');
-
+mongoose.set('strictQuery', false);
 mongoose.connect('mongodb://127.0.0.1:27017/', {
     dbName: 'ProfilesX',
     useNewUrlParser: true,
@@ -23,7 +22,6 @@ contact.createIndexes();
 const serverBackendRelationship = async (req, res) => {
     
     if (req.method === 'POST') {
-        console.log(req); 
         if (req.body.type === '1') {
             const data = {
                 email1: req.body.email1,
@@ -80,7 +78,8 @@ const serverBackendRelationship = async (req, res) => {
 
         }else{
             contact.find({email1 : req.body.email}).then((data)=>{
-             res.status(200).send(data);    
+                 
+                res.status(200).send(data);    
             })
         }
     }

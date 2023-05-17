@@ -2,7 +2,7 @@ import { Server } from 'socket.io';
 
 const mongoose = require('mongoose'); 
 mongoose.connect('mongodb://127.0.0.1:27017/', {
-    dbName: 'ProfileX',
+    dbName: 'ProfilesX',
     useNewUrlParser: true,
     useUnifiedTopology: true
 } , err=> err?console.log(err) : 'Done' ); 
