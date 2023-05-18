@@ -1,18 +1,21 @@
 import * as React from 'react';
-import ContactsOutlinedIcon from "@mui/icons-material/ContactsOutlined";
-import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
+
 
 import NavBarr from './NavBarr';
 import { useState, useEffect } from 'react';
 import { Sidebar, Menu, MenuItem, SubMenu, useProSidebar, SidebarHeader } from 'react-pro-sidebar';
-import { Button, ButtonGroup } from 'react-bootstrap';
+import { Button ,ButtonGroup } from 'react-bootstrap';
+import { useRouter } from 'next/router';
 
-import Router, { useRouter } from 'next/router';
-
-export default function MainScreen(props) {
+import ContactsOutlinedIcon from "@mui/icons-material/ContactsOutlined";
+import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
+export default function Frequestscreen() {
+  
   const [flist, setflist] = useState([])
   const [rlist, setrlist] = useState([])
-  let router = useRouter();
+  let router = useRouter(); 
+  const props = JSON.parse(router.query.props)
+  console.log(props)
   const handleAccept = async (email) => {
     console.log(email);
     if (typeof window !== "undefined") {
@@ -50,48 +53,52 @@ export default function MainScreen(props) {
       console.log(response);
     }
   }
-  const handleContacts = () => {
-    console.log("okok")
-    const x = JSON.stringify(rlist)
-    console.log(x);
-
-    router.push({
-      pathname: '/frscreen',
-      query: { props: x }
-    })
-
-  }
   useEffect(() => {
     setflist([])
     setrlist([]);
-    props.props.forEach(element => {
+    props.forEach(element => {
       if (element.status) {
         setflist(current => [...current, { email: element.email }]);
       } else {
         setrlist(current => [...current, { email: element.email }]);
       }
     })
-  }, [props.props])
+  }, [router.query])
   return (
     <div>
-      <NavBarr />
-      <div style={{ display: 'flex', height: '600px' }}>
+    <NavBarr />
+    <div style={{ display: 'flex', height: '600px' }}>
 
-        <Sidebar>
-          <Menu>
-            <SubMenu icon={<PeopleOutlinedIcon />} label="Connections">
-              {flist.map((text, index) => (
-                <div style={{ display: "flex" }}>
-                  <MenuItem style={{ fontSize: "13px" }}> {text.email}</MenuItem>
-                </div>
-              ))}
-            </SubMenu>
-            <MenuItem onClick={() => handleContacts()} icon={<ContactsOutlinedIcon />}>Contacts</MenuItem>
-          </Menu>
-        </Sidebar>
+      <Sidebar>
+        <Menu>
+          <SubMenu icon={<PeopleOutlinedIcon />} label="Connections">
+            {flist.map((text, index) => (
+              <div style={{ display: "flex" }}>
+                <MenuItem style={{ fontSize: "13px" }}> {text.email}</MenuItem>
+              </div>
+            ))}
+          </SubMenu>
+         
+        </Menu>
+      </Sidebar>
+      <div>
+        <Menu>
+          {rlist.map((text, index) => (
+            <div style={{ display: "flex", width: "100%" }}>
+              <MenuItem style={{ fontSize: "20px" }}> {text.email}</MenuItem>
 
+              <Button variant="outline-success" size="sm" onClick={() => handleAccept(text)}>
+                Accept
+              </Button>
+              <Button variant="outline-danger" size="sm" onClick={() => handleReject(text)}>
+                Reject
+              </Button>
+
+            </div>
+          ))}
+        </Menu>
       </div>
     </div>
-
+  </div>
   );
 }

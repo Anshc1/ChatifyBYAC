@@ -20,7 +20,7 @@ contact.createIndexes();
 
 
 const serverBackendRelationship = async (req, res) => {
-    
+
     if (req.method === 'POST') {
         if (req.body.type === '1') {
             const data = {
@@ -28,29 +28,14 @@ const serverBackendRelationship = async (req, res) => {
                 email2: req.body.email2,
                 Status: false,
             }
-            await contact.deleteMany(data); 
-            const data1 ={
-                email1: req.body.email2,
-                email2: req.body.email1,
-                Status: false,
-            }
-            await contact.deleteMany(data1);
-            var val = new contact(data);  
-            await val.save().then(()=>{
-                const data1 = {
-                    email1: req.body.email2,
-                    email2: req.body.email1,
-                    Status: false,
-                }
-                val = new contact(data1); 
-                val.save().then(() => {
-                    res.send(200); 
-                }).catch(err => {
+            await contact.deleteMany(data);
+
+            var val = new contact(data);
+            await val.save().then(() => {
+                    res.send(200);
                     console.log(err);
-                })
             });
-        } else if(req.body.type ==='2') {
-            console.log("vis2");  
+        } else if (req.body.type === '2') {
             var data = {
                 email1: req.body.email1,
                 email2: req.body.email2,
@@ -68,29 +53,40 @@ const serverBackendRelationship = async (req, res) => {
                 email2: req.body.email2,
                 Status: true,
             }
-            var datax = new contact(data); 
-            datax.save(datax).then(()=>{
+            var datax = new contact(data);
+            datax.save(datax).then(() => {
                 //res.send("You are now Friends"); 
-            }).catch((err)=>{
-                console.log(err); 
+            }).catch((err) => {
+                console.log(err);
             })
             data = {
                 email1: req.body.email2,
                 email2: req.body.email1,
                 Status: true,
             }
-            datax = new contact(data); 
-            datax.save(datax).then(()=>{
-                res.send("You are now Friends"); 
-            }).catch((err)=>{
-                console.log(err); 
+            datax = new contact(data);
+            datax.save(datax).then(() => {
+                res.send("You are now Friends");
+            }).catch((err) => {
+                console.log(err);
             })
-        }else if(req.body.type === '3'){
+        } else if (req.body.type === '3') {
+            var data = {
+                email1: req.body.email1,
+                email2: req.body.email2,
+                Status: false,
+            }
+            await contact.deleteMany(data);
+            data = {
+                email1: req.body.email2,
+                email2: req.body.email1,
+                Status: false,
+            }
+            await contact.deleteMany(data); 
+        } else {
+            contact.find({ email1: req.body.email }).then((data) => {
 
-        }else{
-            contact.find({email1 : req.body.email}).then((data)=>{
-                 
-                res.status(200).send(data);    
+                res.status(200).send(data);
             })
         }
     }

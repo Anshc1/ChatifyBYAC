@@ -3,6 +3,8 @@ import UserInfoContext from '../contexts/UserInfoContext';
 import '../styles/globals.css'
 import { useState } from 'react';
 import { ProSidebarProvider } from 'react-pro-sidebar';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 
 
 
