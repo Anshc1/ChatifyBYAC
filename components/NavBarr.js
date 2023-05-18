@@ -22,6 +22,8 @@ import AdbIcon from '@mui/icons-material/Adb';
 import LogoutIcon from '@mui/icons-material/Logout'
 
 
+
+
 const fetchNames = async () => {
 
   const query = {
@@ -78,22 +80,22 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 export default function NavBarr() {
 
-  
+
   const [toHide, settoHide] = useState(false)
   const [Item, setItem] = useState([])
-  
 
 
-  const handleLogout=()=>{
-    localStorage.setItem('uid' , null); 
-    localStorage.setItem('userName' ,null); 
-    localStorage.setItem('email' , null);
-    localStorage.setItem('profilePicURL' , null); 
-    Router.push('/login');  
+
+  const handleLogout = () => {
+    localStorage.setItem('uid', null);
+    localStorage.setItem('userName', null);
+    localStorage.setItem('email', null);
+    localStorage.setItem('profilePicURL', null);
+    Router.push('/login');
   }
 
   useEffect(() => {
-    
+
     if (Router.query.email !== undefined) {
       settoHide(true);
     }
@@ -153,13 +155,13 @@ export default function NavBarr() {
   });
   const [userName, setuserName] = useState("")
   const [userPic, setuserPic] = useState("")
-  if(typeof window !== "undefined" &&  window.localStorage.getItem('userName')!==null ){
+  if (typeof window !== "undefined" && window.localStorage.getItem('userName') !== null) {
     useEffect(() => {
       setuserName(window.localStorage.getItem('userName'));
-      setuserPic(window.localStorage.getItem('profilePicURL')); 
+      setuserPic(window.localStorage.getItem('profilePicURL'));
     }, [])
   }
-    
+
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
   const isMenuOpen = Boolean(anchorEl);
@@ -283,10 +285,9 @@ export default function NavBarr() {
 
           <div className="App" >
             <header className="App-header">
-              <div style={{ paddingLeft: 150, width: 500  }} hidden={toHide}>
-
+              <div style={{ marginLeft: 150,  minWidth:'300px'}} hidden={toHide}>
                 <ReactSearchAutocomplete
-                  styling={{ height: "27px" , zIndex:1000}}
+                  styling={{  height: "27px" , zIndex: 1000 , width: "100px"}}
                   items={Item}
                   fuseOptions={{ keys: ['name', 'email'] }}
                   onSearch={handleOnSearch}
@@ -296,12 +297,13 @@ export default function NavBarr() {
                   autoFocus
                   formatResult={formatResult}
                 />
+
               </div>
             </header>
           </div>
 
           <Box sx={{ flexGrow: 1 }} />
-          
+
           <div style={{ paddingRight: '10px' }}>
             <Avatar alt="Travis Howard" src={userPic} />
           </div>
@@ -317,25 +319,12 @@ export default function NavBarr() {
 
 
           <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-          <IconButton size="large"  color="inherit">
-              <Badge  color="error">
-                <LogoutIcon onClick= {handleLogout} />
+            <IconButton size="large" color="inherit">
+              <Badge color="error">
+                <LogoutIcon onClick={handleLogout} />
               </Badge>
             </IconButton>
-            <IconButton size="large" aria-label="show 4 new mails" color="inherit">
-              <Badge badgeContent={4} color="error">
-                <MailIcon />
-              </Badge>
-            </IconButton>
-            <IconButton
-              size="large"
-              aria-label="show 17 new notifications"
-              color="inherit"
-            >
-              <Badge badgeContent={17} color="error">
-                <NotificationsIcon />
-              </Badge>
-            </IconButton>
+            
             <IconButton
               size="large"
               edge="end"

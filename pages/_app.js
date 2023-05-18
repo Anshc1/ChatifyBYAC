@@ -1,16 +1,18 @@
 import Authcontext from '../contexts/Authcontext'
 import UserInfoContext from '../contexts/UserInfoContext';
 import '../styles/globals.css'
-import { useState  } from 'react';
+import { useState } from 'react';
+import { ProSidebarProvider } from 'react-pro-sidebar';
+
 
 
 export default function App({ Component, pageProps }) {
   var initialstate = "";
   var initialuserInfo = {
-    Name: "", 
-    email:"", 
-    Url : "",
-    UID : "", 
+    Name: "",
+    email: "",
+    Url: "",
+    UID: "",
   }
   /*if (typeof window !== 'undefined' ) {
     const local = window.localStorage.getItem('name');
@@ -32,12 +34,14 @@ export default function App({ Component, pageProps }) {
     }
   } 
   */
- // console.log(initialuserInfo); 
+  // console.log(initialuserInfo); 
   const [UserInfo, setUserInfo] = useState(initialuserInfo)
 
   return (
-   <Authcontext.Provider value= { {UserInfo  , setUserInfo  }}>
-       <Component {...pageProps} />
-    </Authcontext.Provider>
+    <ProSidebarProvider>
+      <Authcontext.Provider value={{ UserInfo, setUserInfo }}>
+        <Component {...pageProps} />
+      </Authcontext.Provider>
+    </ProSidebarProvider>
   )
 }

@@ -69,7 +69,18 @@ const serverBackendRelationship = async (req, res) => {
                 Status: true,
             }
             var datax = new contact(data); 
-            contact.save(datax).then(()=>{
+            datax.save(datax).then(()=>{
+                //res.send("You are now Friends"); 
+            }).catch((err)=>{
+                console.log(err); 
+            })
+            data = {
+                email1: req.body.email2,
+                email2: req.body.email1,
+                Status: true,
+            }
+            datax = new contact(data); 
+            datax.save(datax).then(()=>{
                 res.send("You are now Friends"); 
             }).catch((err)=>{
                 console.log(err); 
