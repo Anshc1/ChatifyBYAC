@@ -14,12 +14,20 @@ import ListItemText from '@mui/material/ListItemText';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
 import NavBarr from './NavBarr';
+import { useState , useEffect } from 'react';
 
 
 const drawerWidth = 240;
 
 export default function MainScreen(props) {
-  console.log(props.props); 
+  const [flist, setflist] = useState([]) 
+  useEffect(() => {
+    setflist([])
+    props.props.forEach(element => {
+      setflist(current => [...current, {email : element.email , status : element.Status} ]);
+    })
+  }, [props.props])
+  console.log(flist);
   return (
     <div>
       <Box sx={{ display: 'flex' }} >
@@ -37,30 +45,18 @@ export default function MainScreen(props) {
         >
           <Toolbar />
           <Box sx={{ overflow: 'auto' }}  >
-            <List>
-              {
-              
-              props.props.forEach(element => {
-                  <div>
-                    console.log(element.email2)
-                    {element.email2}
-                  </div>
-              })  
-            }
-            </List>
-            <Divider />
-            <List>
-              {['All mail', 'Trash', 'Spam'].map((text, index) => (
-                <ListItem key={text} disablePadding>
-                  <ListItemButton>
-                    <ListItemIcon>
-                      {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                    </ListItemIcon>
-                    <ListItemText primary={text} />
-                  </ListItemButton>
-                </ListItem>
-              ))}
-            </List>
+          
+          <List>
+          
+          <Divider />
+           {flist.map((text, index) => (
+             <ListItem key={text.email} disablePadding>
+               <ListItemButton>
+                 <ListItemText primary={text.email} />
+               </ListItemButton>
+             </ListItem>
+           ))}
+          </List>
           </Box>
         </Drawer>
         <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
