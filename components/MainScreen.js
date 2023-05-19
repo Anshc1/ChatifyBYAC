@@ -3,64 +3,54 @@ import ContactsOutlinedIcon from "@mui/icons-material/ContactsOutlined";
 import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
 
 import NavBarr from './NavBarr';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Sidebar, Menu, MenuItem, SubMenu, useProSidebar, SidebarHeader } from 'react-pro-sidebar';
-import { Button, ButtonGroup } from 'react-bootstrap';
+import { Button, ButtonGroup, Card, Form, Row, Col, InputGroup } from 'react-bootstrap';
 
 import Router, { useRouter } from 'next/router';
 
 export default function MainScreen(props) {
+  const mssgRef = useRef(null);
   const [flist, setflist] = useState([])
   const [rlist, setrlist] = useState([])
+  const [reloadComponent, setReloadComponent] = useState(false);
+  const [messageQueue, setmessageQueue] = useState([])
   let router = useRouter();
-  const handleAccept = async (email) => {
-    console.log(email);
-    if (typeof window !== "undefined") {
-      const query = {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json', 'Accept': 'application/json'
-        },
-        body:
-          JSON.stringify({
-            type: '2',
-            email1: email.email,
-            email2: window.localStorage.getItem('email'),
-          })
-      }
-      const response = await fetch('/api/serverBackendRelationship', query);
-      console.log(response);
-    }
-  }
-  const handleReject = async (email) => {
-    if (typeof window !== "undefined") {
-      const query = {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json', 'Accept': 'application/json'
-        },
-        body:
-          JSON.stringify({
-            type: '3',
-            email1: email.email,
-            email2: window.localStorage.getItem('email'),
-          })
-      }
-      const response = await fetch('/api/serverBackendRelationship', query);
-      console.log(response);
-    }
-  }
-  const handleContacts = () => {
-    console.log("okok")
-    const x = JSON.stringify(rlist)
-    console.log(x);
 
+  const [MessageBox, setMessageBox] = useState()
+  const [updateContent, setupdateContent] = useState(false)
+
+  const handleContacts = () => {
+
+    const x = JSON.stringify(rlist)
+    const y = JSON.stringify(flist);
     router.push({
       pathname: '/frscreen',
-      query: { props: x }
+      query: { flist: y, rlist: x }
     })
-
   }
+
+
+  const handleSelectemail = (email) => {
+    setMessageBox(email)
+    setReloadComponent(true)
+  }
+
+
+
+  const handleSubmitMessage = (e) => {
+    e.preventDefault();
+    setupdateContent(true)
+    mssgRef.current.value = '';
+  };
+
+  useEffect(() => {
+    setmessageQueue([]);
+  }, [MessageBox])
+  useEffect(() => {
+    //setupdateContent(false); 
+  }, [updateContent] ); 
+  
   useEffect(() => {
     setflist([])
     setrlist([]);
@@ -75,14 +65,13 @@ export default function MainScreen(props) {
   return (
     <div>
       <NavBarr />
-      <div style={{ display: 'flex', height: '600px' }}>
-
+      <div style={{ display: 'flex', height: '92vh', flexDirection: "row" }}>
         <Sidebar>
           <Menu>
             <SubMenu icon={<PeopleOutlinedIcon />} label="Connections">
               {flist.map((text, index) => (
                 <div style={{ display: "flex" }}>
-                  <MenuItem style={{ fontSize: "13px" }}> {text.email}</MenuItem>
+                  <MenuItem onClick={() => handleSelectemail(text.email)} style={{ fontSize: "13px" }}> {text.email}</MenuItem>
                 </div>
               ))}
             </SubMenu>
@@ -90,8 +79,61 @@ export default function MainScreen(props) {
           </Menu>
         </Sidebar>
 
+        <div>
+          {reloadComponent ? (
+            <div style={{ display: "flex", justifyContent: 'center', width: "80vw", height: "92vh" }}>
+              <Card className="text-center" style={{ width: "50vw" }} >
+                <Card.Header>{MessageBox}</Card.Header>
+
+
+                <Card.Body>
+                  <Card.Title></Card.Title>
+                  <Card.Text>   
+                    {updateContent ? 
+                    (
+                      messageQueue.map((msg, index) => {
+                        <div>
+                              {msg.message}
+                        </div>
+                      })
+                     ) : (
+                      <div>
+                        hello
+                      </div>
+                     )
+                     
+                  }
+                  </Card.Text>
+                </Card.Body>
+
+                <Card.Footer className="text-muted">
+                  <Form onSubmit={handleSubmitMessage}>
+                    <Row className="justify-content-around">
+                      <Col sm={10} className="my-1">
+                        <Form.Control id="inlineFormInputName" placeholder="Jane Doe" ref={mssgRef} />
+                      </Col>
+                      <Col xs="auto" className="my-1">
+                        <Button id="inlineFormInputName" type="submit" onClick={(e) => setmessageQueue((current) => [...current, { message: mssgRef.current.value, auther: "you" }])}  >Send</Button>
+                      </Col>
+                    </Row>
+                  </Form>
+
+                </Card.Footer>
+              </Card>
+            </div>
+          ) : (
+            <div style={{ display: "flex", justifyContent: 'center', width: "80vw", height: "92vh" }}>
+              <Card className="text-center" style={{ width: "50vw" }} >
+                <Card.Body>
+                  <Card.Title>Welcome To CHATIFY</Card.Title>
+                </Card.Body>
+              </Card>
+            </div>
+          )
+          }
+
+        </div>
       </div>
     </div>
-
-  );
+  )
 }

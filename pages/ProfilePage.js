@@ -15,7 +15,7 @@ function ProfilePage() {
     setprops(router.query); 
   }, [router.query])
   return(
-    <div>
+    <div style={ {  height:  '100vh'  }}>
     <NavBarr />
     <ProfileComponent/>
     </div>

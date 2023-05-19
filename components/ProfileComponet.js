@@ -171,7 +171,7 @@ export default function ProfileComponent() {
     return (
 
         <div>
-            <div className="gradient-custom-2" style={{ background: 'linear-gradient(to right, rgba(102, 126, 234, 0.5), rgba(118, 75, 162, 0.5))' }}>
+            <div className="gradient-custom-2" style={{display: 'flex' , height: '100vh',  background: 'linear-gradient(to right, rgba(102, 126, 234, 0.5), rgba(118, 75, 162, 0.5))' }}>
                 <MDBContainer className="py-5 h-100">
                     <MDBRow className="justify-content-center align-items-center h-100">
                         <MDBCol lg="9" xl="7">
