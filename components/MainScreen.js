@@ -40,6 +40,7 @@ export default function MainScreen(props) {
 
   const handleSubmitMessage = (e) => {
     e.preventDefault();
+    console.log(messageQueue); 
     setupdateContent(true)
     mssgRef.current.value = '';
   };
@@ -84,25 +85,18 @@ export default function MainScreen(props) {
             <div style={{ display: "flex", justifyContent: 'center', width: "80vw", height: "92vh" }}>
               <Card className="text-center" style={{ width: "50vw" }} >
                 <Card.Header>{MessageBox}</Card.Header>
-
-
                 <Card.Body>
                   <Card.Title></Card.Title>
                   <Card.Text>   
-                    {updateContent ? 
-                    (
-                      messageQueue.map((msg, index) => {
+                    {
+                    messageQueue.map((msg, index) => {
+                      return(
                         <div>
-                              {msg.message}
+                             {msg.message}
                         </div>
-                      })
-                     ) : (
-                      <div>
-                        hello
-                      </div>
-                     )
-                     
-                  }
+                      )
+                    })
+                    }
                   </Card.Text>
                 </Card.Body>
 
