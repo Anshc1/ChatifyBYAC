@@ -44,6 +44,7 @@ function messengingBackend(req, res) {
             callback("messageSaved")
         })
     })
+
     res.socket.server.io.on('connection', (socket) => {
         socket.on('getMessages', (arg, callback) => { 
             conversationData.find(arg).then((data)=>{
@@ -51,6 +52,7 @@ function messengingBackend(req, res) {
             })
         })
     })
+
     res.end()
 }
 

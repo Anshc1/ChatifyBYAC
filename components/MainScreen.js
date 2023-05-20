@@ -36,7 +36,6 @@ export default function MainScreen(props) {
 
 
 
-
   const handleSubmitMessage = async (e) => {
     e.preventDefault();
     mssgRef.current.value = '';
@@ -51,22 +50,27 @@ export default function MainScreen(props) {
           socket.on('connect', () => {
             console.log('connect')
           })
-          var user1 = currentUser; 
-          var user2 = MessageBox ;
-     
-          var turn = '1'; 
-          if(user1 < user2){
+          var user1 = currentUser;
+          var user2 = MessageBox;
+
+          var turn = '1';
+          if (user1 < user2) {
             turn = '2';
-            [user1 , user2] = [user2 , user1];  
-          }  
-          console.log(user1); 
-          console.log(user2); 
-          console.log(turn); 
+            [user1, user2] = [user2, user1];
+          }
+          console.log(user1);
+          console.log(user2);
+          console.log(turn);
+
+
+
           const hs = hash(messageQueue.slice(-1)[0]);
+
+
           socket.emit('messageServerConnection', {
             user1: user1,
             user2: user2,
-            turn : turn, 
+            turn: turn,
             message: messageQueue.slice(-1)[0].message,
             time: messageQueue.slice(-1)[0].time,
             hh: hs
@@ -82,8 +86,16 @@ export default function MainScreen(props) {
   };
 
   useEffect(() => {
+
+
+
     setmessageQueue([])
+
+
     var currentUser
+
+
+
     if (typeof window !== 'undefined') {
       currentUser = window.localStorage.getItem('email');
       const updateMscreen = async () => {
@@ -92,22 +104,28 @@ export default function MainScreen(props) {
           socket.on('connect', () => {
             console.log('connect')
           })
-          var user1 = currentUser; 
-          var user2 = MessageBox; 
-          if(user1 < user2){
-            [user1 , user2] = [user2 , user1]; 
+          var user1 = currentUser;
+          var user2 = MessageBox;
+          if (user1 < user2) {
+            [user1, user2] = [user2, user1];
           }
 
+          const updMessage = (ack) => {
+            ack.forEach(element => {
+              if(element.turn==='1'){
+                setmessageQueue(current => [...current, { message: element.message, auther: element.user1, time: element.time }])
+              }else{
+                setmessageQueue(current => [...current, { message: element.message, auther: element.user2, time: element.time }])
+              }
+            });
+          }
           socket.emit('getMessages', {
             user1: user1,
             user2: user2,
           }, (ack) => {
-            ack.forEach(element => {
-               console.log(element.message)
-               setmessageQueue[current =>[...current , {message : element.message , auther : element.user1 , time : element.time}]]
-            });
+            updMessage(ack)
           })
-         
+
           socket.on('disconnect', () => {
             console.log('disconnect')
           })
@@ -116,7 +134,7 @@ export default function MainScreen(props) {
       updateMscreen();
     }
   }, [MessageBox])
-  
+
   console.log(messageQueue)
 
   useEffect(() => {
@@ -142,11 +160,13 @@ export default function MainScreen(props) {
         <Sidebar>
           <Menu>
             <SubMenu icon={<PeopleOutlinedIcon />} label="Connections">
-              {flist.map((text, index) => (
-                <div style={{ display: "flex" }}>
-                  <MenuItem onClick={() => handleSelectemail(text.email)} style={{ fontSize: "13px" }}> {text.email}</MenuItem>
-                </div>
-              ))}
+              {flist.map((text, index) => {
+                return (
+                  <div style={{ display: "flex" }}>
+                    <MenuItem onClick={() => handleSelectemail(text.email)} style={{ fontSize: "13px" }}> {text.email}</MenuItem>
+                  </div>
+                )
+              })}
             </SubMenu>
             <MenuItem onClick={() => handleContacts()} icon={<ContactsOutlinedIcon />}>Contacts</MenuItem>
           </Menu>
