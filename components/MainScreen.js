@@ -6,9 +6,8 @@ import NavBarr from './NavBarr';
 import { useState, useEffect, useRef } from 'react';
 import { Sidebar, Menu, MenuItem, SubMenu, useProSidebar, SidebarHeader } from 'react-pro-sidebar';
 import { Button, ButtonGroup, Card, Form, Row, Col, InputGroup } from 'react-bootstrap';
-
 import Router, { useRouter } from 'next/router';
-
+import { io } from 'socket.io-client';
 export default function MainScreen(props) {
   const mssgRef = useRef(null);
   const [flist, setflist] = useState([])
@@ -17,11 +16,9 @@ export default function MainScreen(props) {
   const [messageQueue, setmessageQueue] = useState([])
   let router = useRouter();
 
-  const [MessageBox, setMessageBox] = useState()
-  const [updateContent, setupdateContent] = useState(false)
+  const [MessageBox, setMessageBox] = useState("")
 
   const handleContacts = () => {
-
     const x = JSON.stringify(rlist)
     const y = JSON.stringify(flist);
     router.push({
@@ -38,20 +35,94 @@ export default function MainScreen(props) {
 
 
 
-  const handleSubmitMessage = (e) => {
+
+
+  const handleSubmitMessage = async (e) => {
     e.preventDefault();
-    console.log(messageQueue); 
-    setupdateContent(true)
     mssgRef.current.value = '';
+    if (typeof window !== 'undefined') {
+      var hash = require('object-hash');
+      var currentUser = window.localStorage.getItem('email');
+      console.log(messageQueue.slice(-1)[0]);
+      if (messageQueue.length > 0 && messageQueue.slice(-1)[0].auther === "you") {
+
+        await fetch('api/messengingBackend').finally(() => {
+          const socket = io();
+          socket.on('connect', () => {
+            console.log('connect')
+          })
+          var user1 = currentUser; 
+          var user2 = MessageBox ;
+     
+          var turn = '1'; 
+          if(user1 < user2){
+            turn = '2';
+            [user1 , user2] = [user2 , user1];  
+          }  
+          console.log(user1); 
+          console.log(user2); 
+          console.log(turn); 
+          const hs = hash(messageQueue.slice(-1)[0]);
+          socket.emit('messageServerConnection', {
+            user1: user1,
+            user2: user2,
+            turn : turn, 
+            message: messageQueue.slice(-1)[0].message,
+            time: messageQueue.slice(-1)[0].time,
+            hh: hs
+          }, (ack) => {
+            console.log(ack);
+          })
+          socket.on('disconnect', () => {
+            console.log('disconnect')
+          })
+        })
+      }
+    }
   };
 
   useEffect(() => {
-    setmessageQueue([]);
+    setmessageQueue([])
+    var currentUser
+    if (typeof window !== 'undefined') {
+      currentUser = window.localStorage.getItem('email');
+      const updateMscreen = async () => {
+        await fetch('api/messengingBackend').finally(() => {
+          const socket = io();
+          socket.on('connect', () => {
+            console.log('connect')
+          })
+          var user1 = currentUser; 
+          var user2 = MessageBox; 
+          if(user1 < user2){
+            [user1 , user2] = [user2 , user1]; 
+          }
+
+          socket.emit('getMessages', {
+            user1: user1,
+            user2: user2,
+          }, (ack) => {
+            ack.forEach(element => {
+               console.log(element.message)
+               setmessageQueue[current =>[...current , {message : element.message , auther : element.user1 , time : element.time}]]
+            });
+          })
+         
+          socket.on('disconnect', () => {
+            console.log('disconnect')
+          })
+        })
+      }
+      updateMscreen();
+    }
   }, [MessageBox])
+  
+  console.log(messageQueue)
+
   useEffect(() => {
     //setupdateContent(false); 
-  }, [updateContent] ); 
-  
+  }, []);
+
   useEffect(() => {
     setflist([])
     setrlist([]);
@@ -63,6 +134,7 @@ export default function MainScreen(props) {
       }
     })
   }, [props.props])
+
   return (
     <div>
       <NavBarr />
@@ -87,15 +159,15 @@ export default function MainScreen(props) {
                 <Card.Header>{MessageBox}</Card.Header>
                 <Card.Body>
                   <Card.Title></Card.Title>
-                  <Card.Text>   
+                  <Card.Text>
                     {
-                    messageQueue.map((msg, index) => {
-                      return(
-                        <div>
-                             {msg.message}
-                        </div>
-                      )
-                    })
+                      messageQueue.map((msg, index) => {
+                        return (
+                          <div>
+                            {msg.message}
+                          </div>
+                        )
+                      })
                     }
                   </Card.Text>
                 </Card.Body>
@@ -107,7 +179,7 @@ export default function MainScreen(props) {
                         <Form.Control id="inlineFormInputName" placeholder="Jane Doe" ref={mssgRef} />
                       </Col>
                       <Col xs="auto" className="my-1">
-                        <Button id="inlineFormInputName" type="submit" onClick={(e) => setmessageQueue((current) => [...current, { message: mssgRef.current.value, auther: "you" }])}  >Send</Button>
+                        <Button id="inlineFormInputName" type="submit" onClick={(e) => setmessageQueue((current) => [...current, { message: mssgRef.current.value, auther: "you", time: new Date() }])}  >Send</Button>
                       </Col>
                     </Row>
                   </Form>

@@ -33,77 +33,70 @@ const fetchPUrl = async (val) => {
   const user = await response.json();
   return user[0].URL;
 }
+
+
+
 function mainpage() {
   const [flist, setflist] = useState([]);
-
-  if (typeof window !== "undefined") {
-    const val = window.localStorage.getItem('uid');
-    useEffect(() => {
-      const func = async () => {
-        await fetchName(val).then((res) => {
-          const Name = capitalizeFirstLetter(res[0].name);
-          const email = res[0].email;
-          localStorage.setItem('userName', Name);
-          localStorage.setItem('email', email);
-        }).catch(() => {
-
-        });
-        await fetchPUrl(val).then((res) => {
-          localStorage.setItem('profilePicURL', res);
-        }).catch((err) => {
-          console.log(err);
+  const func = async () => {
+    var val;
+    if (typeof window !== "undefined") {
+      val = window.localStorage.getItem('uid');
+    }
+    await fetchName(val).then((res) => {
+      const Name = capitalizeFirstLetter(res[0].name);
+      const email = res[0].email;
+      localStorage.setItem('userName', Name);
+      localStorage.setItem('email', email);
+    }).catch(() => {
+      
+    });
+    await fetchPUrl(val).then((res) => {
+      localStorage.setItem('profilePicURL', res);
+    }).catch((err) => {
+      console.log(err);
+    })
+  }
+  const fetchFlist = async () => {
+    if (typeof window !== "undefined") {
+      const query = {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json', 'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          type: "4",
+          email: window.localStorage.getItem("email")
         })
       }
-
-
-
-      const fetchFlist = async () => {
-
-        if (typeof window !== "undefined") {
-
-          const query = {
-            method: "POST",
-            headers: {
-              'Content-Type': 'application/json', 'Accept': 'application/json'
-            },
-            body: JSON.stringify({
-              type: "4",
-              email: window.localStorage.getItem("email")
-            })
-          }
-          const res = await fetch('/api/serverBackendRelationship', query);
-          const data = await res.json();
-          setflist([])
-          data.forEach(element => {
-            setflist(current => [...current, { email : element.email2 ,status: element.Status }]);
-          })
-        }
-      }
-      fetchFlist();
-      /*const connectTosocket = async () => {
-        
-        if (typeof window !== "undefined") {
-          const email = window.localStorage.getItem("email"); 
-          await fetch('/api/socketidGenerator').finally(() => { 
-            const socket = io()
-            socket.on('connect', () => {
-              console.log('connect')
-            })
-            socket.emit('connection id' , {email : email } , (ack)=>{
-              console.log(ack); 
-            } )          
-            socket.on('disconnect', () => {
-              console.log('disconnect')
-            })
-            
-          })
-        }
-      }
-      connectTosocket();*/
-      func();
-    }, [])
+      const res = await fetch('/api/serverBackendRelationship', query);
+      const data = await res.json();
+      setflist([])
+      data.forEach(element => {
+        setflist(current => [...current, { email: element.email2, status: element.Status }]);
+      })
+    }
   }
-  console.log(flist);
+  useEffect(() => {
+    fetchFlist();
+    func();
+  }, [])
+  
+  useEffect(() => {
+    const connectToSocket = async () => {
+      if (typeof window !== 'undefined') {
+        const email = window.localStorage.getItem('email');
+        await fetch('/api/messengingBackend')
+        const socket = io()
+        socket.on('connect', () => {
+          console.log('connected')
+        })
+      }
+    };
+    connectToSocket();
+  }, []);
+
+
   return (
     <>
       <MainScreen props={flist} />

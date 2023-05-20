@@ -83,6 +83,7 @@ const serverBackendRelationship = async (req, res) => {
                 Status: false,
             }
             await contact.deleteMany(data); 
+            res.end(); 
         } else {
             contact.find({ email1: req.body.email }).then((data) => {
 

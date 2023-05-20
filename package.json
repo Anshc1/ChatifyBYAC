@@ -24,6 +24,7 @@
     "mdb-react-ui-kit": "^5.1.0",
     "mongoose": "^6.8.1",
     "next": "13.1.1",
+    "object-hash": "^3.0.0",
     "react": "18.2.0",
     "react-bootstrap": "^2.7.4",
     "react-dom": "18.2.0",
