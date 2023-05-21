@@ -9,6 +9,7 @@ import { Button, ButtonGroup, Card, Form, Row, Col, InputGroup } from 'react-boo
 import Router, { useRouter } from 'next/router';
 import { io } from 'socket.io-client';
 export default function MainScreen(props) {
+  const [currUser, setcurrUser] = useState()
   const mssgRef = useRef(null);
   const [flist, setflist] = useState([])
   const [rlist, setrlist] = useState([])
@@ -43,7 +44,7 @@ export default function MainScreen(props) {
       var hash = require('object-hash');
       var currentUser = window.localStorage.getItem('email');
       console.log(messageQueue.slice(-1)[0]);
-      if (messageQueue.length > 0 && messageQueue.slice(-1)[0].auther === "you") {
+      if (messageQueue.length > 0 && messageQueue.slice(-1)[0].auther === currUser) {
 
         await fetch('api/messengingBackend').finally(() => {
           const socket = io();
@@ -86,16 +87,8 @@ export default function MainScreen(props) {
   };
 
   useEffect(() => {
-
-
-
     setmessageQueue([])
-
-
     var currentUser
-
-
-
     if (typeof window !== 'undefined') {
       currentUser = window.localStorage.getItem('email');
       const updateMscreen = async () => {
@@ -112,9 +105,9 @@ export default function MainScreen(props) {
 
           const updMessage = (ack) => {
             ack.forEach(element => {
-              if(element.turn==='1'){
+              if (element.turn === '1') {
                 setmessageQueue(current => [...current, { message: element.message, auther: element.user1, time: element.time }])
-              }else{
+              } else {
                 setmessageQueue(current => [...current, { message: element.message, auther: element.user2, time: element.time }])
               }
             });
@@ -138,7 +131,9 @@ export default function MainScreen(props) {
   console.log(messageQueue)
 
   useEffect(() => {
-    //setupdateContent(false); 
+    if (typeof window !== 'undefined') {
+      setcurrUser(window.localStorage.getItem('email'))
+    }
   }, []);
 
   useEffect(() => {
@@ -152,6 +147,7 @@ export default function MainScreen(props) {
       }
     })
   }, [props.props])
+
 
   return (
     <div>
@@ -180,15 +176,29 @@ export default function MainScreen(props) {
                 <Card.Body>
                   <Card.Title></Card.Title>
                   <Card.Text>
-                    {
-                      messageQueue.map((msg, index) => {
-                        return (
-                          <div>
-                            {msg.message}
-                          </div>
-                        )
-                      })
-                    }
+                    <div className='d-flex flex-column'>
+                      {
+                        messageQueue.map((msg, index) => {
+                          if (msg.auther === currUser) {
+                            return (
+                              <div className="d-flex justify-content-end">
+                                <div className="alert alert-primary">
+                                  {msg.message}
+                                </div>
+                              </div>
+                            )
+                          } else {
+                            return (
+                              <div className="d-flex justify-content-start">
+                                <div className="alert alert-secondary">
+                                  {msg.message}
+                                </div>
+                              </div>
+                            )
+                          }
+                        })
+                      }
+                    </div>
                   </Card.Text>
                 </Card.Body>
 
@@ -199,11 +209,10 @@ export default function MainScreen(props) {
                         <Form.Control id="inlineFormInputName" placeholder="Jane Doe" ref={mssgRef} />
                       </Col>
                       <Col xs="auto" className="my-1">
-                        <Button id="inlineFormInputName" type="submit" onClick={(e) => setmessageQueue((current) => [...current, { message: mssgRef.current.value, auther: "you", time: new Date() }])}  >Send</Button>
+                        <Button id="inlineFormInputName" type="submit" onClick={(e) => setmessageQueue((current) => [...current, { message: mssgRef.current.value, auther: currUser, time: new Date() }])}  >Send</Button>
                       </Col>
                     </Row>
                   </Form>
-
                 </Card.Footer>
               </Card>
             </div>
