@@ -26,6 +26,8 @@ var conversationData = mongoose.models.messagesData || mongoose.model('messagesD
 conversationData.createIndexes();
 
 function messengingBackend(req, res) {
+    const ActiveUser ={}; 
+
     if (res.socket.server.io) {
         console.log('Socket is already running')
     } else {
@@ -33,7 +35,6 @@ function messengingBackend(req, res) {
         const io = new Server(res.socket.server)
         res.socket.server.io = io
     }
-    ;
     res.socket.server.io.on('connection', (socket) => {
         socket.on('messageServerConnection', (arg, callback) => {
             var dataS = new conversationData(arg); 

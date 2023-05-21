@@ -8,6 +8,8 @@ import { Sidebar, Menu, MenuItem, SubMenu, useProSidebar, SidebarHeader } from '
 import { Button, ButtonGroup, Card, Form, Row, Col, InputGroup } from 'react-bootstrap';
 import Router, { useRouter } from 'next/router';
 import { io } from 'socket.io-client';
+
+
 export default function MainScreen(props) {
   const [currUser, setcurrUser] = useState()
   const mssgRef = useRef(null);
@@ -66,7 +68,6 @@ export default function MainScreen(props) {
 
 
           const hs = hash(messageQueue.slice(-1)[0]);
-
 
           socket.emit('messageServerConnection', {
             user1: user1,
@@ -173,16 +174,17 @@ export default function MainScreen(props) {
             <div style={{ display: "flex", justifyContent: 'center', width: "80vw", height: "92vh" }}>
               <Card className="text-center" style={{ width: "50vw" }} >
                 <Card.Header>{MessageBox}</Card.Header>
-                <Card.Body>
+                
+                <Card.Body className='scrollbar scrollbar-primary  overflow-auto'  >
                   <Card.Title></Card.Title>
-                  <Card.Text>
+                  <Card.Text >
                     <div className='d-flex flex-column'>
                       {
                         messageQueue.map((msg, index) => {
                           if (msg.auther === currUser) {
                             return (
                               <div className="d-flex justify-content-end">
-                                <div className="alert alert-primary">
+                                <div className="shadow p-3 mb-5  rounded alert alert-primary">
                                   {msg.message}
                                 </div>
                               </div>
@@ -190,7 +192,7 @@ export default function MainScreen(props) {
                           } else {
                             return (
                               <div className="d-flex justify-content-start">
-                                <div className="alert alert-secondary">
+                                <div className="shadow p-3 mb-5  rounded alert alert-secondary">
                                   {msg.message}
                                 </div>
                               </div>
