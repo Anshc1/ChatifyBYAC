@@ -49,7 +49,7 @@ function mainpage() {
       localStorage.setItem('userName', Name);
       localStorage.setItem('email', email);
     }).catch(() => {
-      
+
     });
     await fetchPUrl(val).then((res) => {
       localStorage.setItem('profilePicURL', res);
@@ -81,20 +81,9 @@ function mainpage() {
     fetchFlist();
     func();
   }, [])
-  
-  useEffect(() => {
-    const connectToSocket = async () => {
-      if (typeof window !== 'undefined') {
-        const email = window.localStorage.getItem('email');
-        await fetch('/api/messengingBackend')
-        const socket = io()
-        socket.on('connect', () => {
-          console.log('connected')
-        })
-      }
-    };
-    connectToSocket();
-  }, []);
+
+ 
+
 
 
   return (

@@ -25,8 +25,8 @@ const messageSchema = new mongoose.Schema({
 var conversationData = mongoose.models.messagesData || mongoose.model('messagesData', messageSchema);
 conversationData.createIndexes();
 
+const ALreadyArrived ={}; 
 function messengingBackend(req, res) {
-    const ActiveUser ={}; 
 
     if (res.socket.server.io) {
         console.log('Socket is already running')
@@ -37,20 +37,37 @@ function messengingBackend(req, res) {
     }
     res.socket.server.io.on('connection', (socket) => {
         socket.on('messageServerConnection', (arg, callback) => {
-            var dataS = new conversationData(arg); 
-            dataS.save().then(() => {
-            }).catch((err) => {
-                console.log(err);
-            })
+            var recipientId = arg.user1; 
+            if(arg.turn == '2'){
+                recipientId = arg.user2; 
+            }
+            if(ALreadyArrived[arg.hh]===1){
+                
+            } else{
+                var dataS = new conversationData(arg); 
+                dataS.save().then(() => {
+                    socket.broadcast.emit('recieveMessage' , arg);
+                }).catch((err) => {
+                    console.log({error : arg.message});
+                })
+                ALreadyArrived[arg.hh] =1; 
+            }
             callback("messageSaved")
         })
     })
 
     res.socket.server.io.on('connection', (socket) => {
+        
         socket.on('getMessages', (arg, callback) => { 
             conversationData.find(arg).then((data)=>{
                 callback(data);                
             })
+        })
+    })
+    res.socket.server.io.on('connection', (socket) => {
+        socket.on('registerUser', (arg, callback) => { 
+            socket.join(arg.resu); 
+            callback("user registered");
         })
     })
 
