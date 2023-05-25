@@ -34,7 +34,6 @@ const fetchPUrl = async (val) => {
 }
 
 
-
 function mainpage() {
   const [flist, setflist] = useState([]);
   const func = async () => {
@@ -76,6 +75,7 @@ function mainpage() {
       })
     }
   }
+  console.log(flist); 
   useEffect(() => {
     fetchFlist();
     func();

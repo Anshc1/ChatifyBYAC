@@ -25,7 +25,7 @@ const messageSchema = new mongoose.Schema({
 var conversationData = mongoose.models.messagesData || mongoose.model('messagesData', messageSchema);
 conversationData.createIndexes();
 
-const ALreadyArrived = {};
+let ALreadyArrived = {};
 function messengingBackend(req, res) {
 
     if (res.socket.server.io) {
@@ -73,7 +73,7 @@ function messengingBackend(req, res) {
     }
 
     res.socket.server.io.on('connection', onConnection)
-
+    ALreadyArrived = {}; 
     res.end()
 }
 

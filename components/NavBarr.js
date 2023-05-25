@@ -176,7 +176,6 @@ export default function NavBarr() {
   };
 
   const handleMenuClose = () => {
-    Router.push('/ProfilePage')
     setAnchorEl(null);
     handleMobileMenuClose();
   };
@@ -202,7 +201,7 @@ export default function NavBarr() {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={handleMenuClose} disabled={toHide} >Profile</MenuItem>
+      <MenuItem onClick={()=>{Router.push('/ProfilePage')}} disabled={toHide} >Profile</MenuItem>
       <MenuItem onClick={handleMenuClose}>Verify My account</MenuItem>
     </Menu>
   );
@@ -285,9 +284,9 @@ export default function NavBarr() {
 
           <div className="App" >
             <header className="App-header">
-              <div style={{ marginLeft: 150,  minWidth:'300px'}} hidden={toHide}>
+              <div style={{ marginLeft: 150, minWidth: '300px' }} hidden={toHide}>
                 <ReactSearchAutocomplete
-                  styling={{  height: "27px" , zIndex: 1000 , width: "100px"}}
+                  styling={{ height: "27px", zIndex: 1000, width: "100px" }}
                   items={Item}
                   fuseOptions={{ keys: ['name', 'email'] }}
                   onSearch={handleOnSearch}
@@ -324,7 +323,7 @@ export default function NavBarr() {
                 <LogoutIcon onClick={handleLogout} />
               </Badge>
             </IconButton>
-            
+
             <IconButton
               size="large"
               edge="end"

@@ -57,38 +57,41 @@ export default function MainScreen(props) {
       console.log(messageQueue.slice(-1)[0]);
 
       if (messageQueue.length > 0 && messageQueue.slice(-1)[0].auther === currUser) {
-
+        let is_submitted = false ;  
         await fetch('api/messengingBackend').finally(() => {
           //const socket = io();
-          socket.on('connect', () => {
-            console.log('connect')
-          })
-          var user1 = currentUser;
-          var user2 = MessageBox;
-
-          var turn = '1';
-          if (user1 < user2) {
-            turn = '2';
-            [user1, user2] = [user2, user1];
+          if(!is_submitted){
+            is_submitted =true; 
+            socket.on('connect', () => {
+              console.log('connect')
+            })
+            var user1 = currentUser;
+            var user2 = MessageBox;
+            
+            var turn = '1';
+            if (user1 < user2) {
+              turn = '2';
+              [user1, user2] = [user2, user1];
+            }
+            
+            const hs = hash(messageQueue.slice(-1)[0]);
+            
+            socket.emit('messageServerConnection', {
+              user1: user1,
+              user2: user2,
+              turn: turn,
+              message: messageQueue.slice(-1)[0].message,
+              time: messageQueue.slice(-1)[0].time,
+              hh: hs
+            }, (ack) => {
+              console.log(ack);
+            })
+            socket.on('disconnect', () => {
+              console.log('disconnect')
+            })
           }
-
-          const hs = hash(messageQueue.slice(-1)[0]);
-
-          socket.emit('messageServerConnection', {
-            user1: user1,
-            user2: user2,
-            turn: turn,
-            message: messageQueue.slice(-1)[0].message,
-            time: messageQueue.slice(-1)[0].time,
-            hh: hs
-          }, (ack) => {
-            console.log(ack);
           })
-          socket.on('disconnect', () => {
-            console.log('disconnect')
-          })
-        })
-      }
+        }
     }
   };
 
@@ -160,6 +163,7 @@ export default function MainScreen(props) {
   useEffect(() => {
     setflist([])
     setrlist([]);
+    console.log(props.props);
     props.props.forEach(element => {
       if (element.status) {
         setflist(current => [...current, { email: element.email }]);
@@ -214,7 +218,7 @@ export default function MainScreen(props) {
 
     return (() => socket ? socket.off('recieveMessage') : null);
 
-  }, [socket,MessageBox]);
+  }, [socket,MessageBox,]);
 
 
 
