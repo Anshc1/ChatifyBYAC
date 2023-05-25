@@ -1,8 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react'
-import Authcontext from '../contexts/Authcontext'
 import MainScreen from '../components/MainScreen';
-import { io } from 'socket.io-client';
-//import UserInfoContext from '../contexts/UserInfoContext';
+
+
 
 function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
@@ -81,14 +80,14 @@ function mainpage() {
     fetchFlist();
     func();
   }, [])
-
- 
-
-
-
+  
+  
+  
+  
+  
   return (
     <>
-      <MainScreen props={flist} />
+       <MainScreen props={flist} />
     </>
   )
 }

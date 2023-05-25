@@ -3,23 +3,25 @@ import ContactsOutlinedIcon from "@mui/icons-material/ContactsOutlined";
 import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
 
 import NavBarr from './NavBarr';
-import { useState, useEffect, useRef ,useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Sidebar, Menu, MenuItem, SubMenu, useProSidebar, SidebarHeader } from 'react-pro-sidebar';
-import { Button, ButtonGroup, Card, Form, Row, Col, InputGroup ,Badge } from 'react-bootstrap';
+import { Button, ButtonGroup, Card, Form, Row, Col, InputGroup, Badge } from 'react-bootstrap';
 import Router, { useRouter } from 'next/router';
 import { io } from 'socket.io-client';
+import { useSocket } from '../contexts/SocketContext';
 
 
 export default function MainScreen(props) {
+  const socket = useSocket();
   const [currUser, setcurrUser] = useState()
   const mssgRef = useRef(null);
   const [flist, setflist] = useState([])
   const [rlist, setrlist] = useState([])
   const [messageQueue, setmessageQueue] = useState([])
   let router = useRouter();
-  
+
   const [MessageBox, setMessageBox] = useState("")
-  
+
   const handleContacts = () => {
     const x = JSON.stringify(rlist)
     const y = JSON.stringify(flist);
@@ -38,18 +40,18 @@ export default function MainScreen(props) {
       return updatedCount;
     });
   };
-  
-  
 
 
-  
+
+
+
 
   const handleSubmitMessage = async (e) => {
-    
+
     e.preventDefault();
     mssgRef.current.value = '';
     if (typeof window !== 'undefined') {
-      
+
       var hash = require('object-hash');
       var currentUser = window.localStorage.getItem('email');
       console.log(messageQueue.slice(-1)[0]);
@@ -57,7 +59,7 @@ export default function MainScreen(props) {
       if (messageQueue.length > 0 && messageQueue.slice(-1)[0].auther === currUser) {
 
         await fetch('api/messengingBackend').finally(() => {
-          const socket = io();
+          //const socket = io();
           socket.on('connect', () => {
             console.log('connect')
           })
@@ -90,68 +92,71 @@ export default function MainScreen(props) {
     }
   };
 
-  
-  
+
+
   useEffect(() => {
     setmessageQueue([])
-    const socket = io();
+    //const socket = io();
     var currentUser
     if (typeof window !== 'undefined') {
-      if(MessageBox!==""){
-        setMessageCount((prev) =>{
-          const prevct = {...prev};
-          prevct[MessageBox] = 0 ; 
-          return prevct;   
+      if (MessageBox !== "") {
+        setMessageCount((prev) => {
+          const prevct = { ...prev };
+          prevct[MessageBox] = 0;
+          return prevct;
         })
       }
       currentUser = window.localStorage.getItem('email');
       const updateMscreen = async () => {
-        await fetch('api/messengingBackend').finally(() => {
-          socket.on('connect', () => {
-            console.log('connect')
-          })
-          var user1 = currentUser;
-          var user2 = MessageBox;
-          if (user1 < user2) {
-            [user1, user2] = [user2, user1];
-          }
+        if (socket) {
 
-          const updMessage = (ack) => {
-            ack.forEach(element => {
-              if (element.turn === '1') {
-                setmessageQueue(current => [...current, { message: element.message, auther: element.user1, time: element.time }])
-              } else {
-                setmessageQueue(current => [...current, { message: element.message, auther: element.user2, time: element.time }])
-              }
-            });
-          }
-          socket.emit('getMessages', {
-            user1: user1,
-            user2: user2,
-          }, (ack) => {
-            updMessage(ack)
+          await fetch('api/messengingBackend').finally(() => {
+            socket.on('connect', () => {
+              console.log('connect')
+            })
+            var user1 = currentUser;
+            var user2 = MessageBox;
+            if (user1 < user2) {
+              [user1, user2] = [user2, user1];
+            }
+
+            const updMessage = (ack) => {
+              ack.forEach(element => {
+                if (element.turn === '1') {
+                  setmessageQueue(current => [...current, { message: element.message, auther: element.user1, time: element.time }])
+                } else {
+                  setmessageQueue(current => [...current, { message: element.message, auther: element.user2, time: element.time }])
+                }
+              });
+            }
+            socket.emit('getMessages', {
+              user1: user1,
+              user2: user2,
+            }, (ack) => {
+              updMessage(ack)
+            })
+
+            socket.on('disconnect', () => {
+              console.log('disconnect')
+            })
           })
-          
-          socket.on('disconnect', () => {
-            console.log('disconnect')
-          })
-        })
+        }
       }
       updateMscreen();
     }
-    return (() => socket.off('getMessages'));
-   }, [MessageBox])
-  
-  
-  
-  
-  
+    return (() => socket ? socket.off('getMessages') : null);
+  }, [MessageBox])
+
+
+
+
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setcurrUser(window.localStorage.getItem('email'))
     }
   }, []);
-  
+
   useEffect(() => {
     setflist([])
     setrlist([]);
@@ -163,14 +168,14 @@ export default function MainScreen(props) {
       }
     })
   }, [props.props])
-  
-  
-  
+
+
+
   useEffect(() => {
-    const Mapp = {}; 
-    const socket = io()
+    const Mapp = {};
+    //const socket = io()
     const connectToSocket = async () => {
-      if (typeof window !== 'undefined') {
+      if (typeof window !== 'undefined' && socket) {
         const emailx = window.localStorage.getItem('email');
         await fetch('/api/messengingBackend')
         socket.on('connect', () => {
@@ -180,41 +185,41 @@ export default function MainScreen(props) {
           console.log(ack);
         })
         socket.on('recieveMessage', (messageData) => {
-          if(Mapp[messageData.hh] ===1){
+          if (Mapp[messageData.hh] === 1) {
 
-          }else{
+          } else {
             console.log({ messR: messageData })
             console.log(Mapp)
-            Mapp[messageData.hh]=1;
-            var sender = messageData.user1 ; 
-            var reciever = messageData.user2 ; 
-            if(messageData.turn ==='2') {
-              [sender , reciever ] = [reciever , sender]; 
+            Mapp[messageData.hh] = 1;
+            var sender = messageData.user1;
+            var reciever = messageData.user2;
+            if (messageData.turn === '2') {
+              [sender, reciever] = [reciever, sender];
             }
-            if(reciever ===currUser){
-              if(sender ===MessageBox){                
-                setmessageQueue(curr=>[...curr , {message:messageData.message , auther :sender , time : messageData.time}])
-              }else{
+            if (reciever === currUser) {
+              if (sender === MessageBox) {
+                setmessageQueue(curr => [...curr, { message: messageData.message, auther: sender, time: messageData.time }])
+              } else {
                 console.log(reciever)
                 console.log(sender)
-                handleIncomingMessage(sender); 
+                handleIncomingMessage(sender);
               }
             }
           }
         })
       }
     };
-    
+
     connectToSocket();
-    return (() => {
-      socket.disconnect();
-    })
-  }, [MessageBox]);
-  
- 
-  
-  
-  
+
+    return (() => socket ? socket.off('recieveMessage') : null);
+
+  }, [socket,MessageBox]);
+
+
+
+
+
   return (
     <div>
       <NavBarr />
@@ -224,25 +229,25 @@ export default function MainScreen(props) {
             <SubMenu icon={<PeopleOutlinedIcon />} label="Connections">
               {flist.map((text, index) => {
                 return (
-                  <div style={{ display: "flex" , flexDirection:'row'}}>
-                    <MenuItem onClick={() =>setMessageBox(text.email)} style={{ fontSize: "13px" }}> 
-                        {text.email} 
-                        {' '} 
-                        {messageCount[text.email] > 0 && <Badge>{messageCount[text.email]}</Badge>}
-                         
+                  <div style={{ display: "flex", flexDirection: 'row' }}>
+                    <MenuItem onClick={() => setMessageBox(text.email)} style={{ fontSize: "13px" }}>
+                      {text.email}
+                      {' '}
+                      {messageCount[text.email] > 0 && <Badge>{messageCount[text.email]}</Badge>}
+
                     </MenuItem>
                   </div>
                 )
               })}
             </SubMenu>
             <MenuItem onClick={() => handleContacts()} icon={<ContactsOutlinedIcon />}>Contacts
-            
+
             </MenuItem>
           </Menu>
         </Sidebar>
 
         <div>
-          {MessageBox!=="" ? (
+          {MessageBox !== "" ? (
             <div style={{ display: "flex", justifyContent: 'center', width: "80vw", height: "92vh" }}>
               <Card className="text-center" style={{ width: "50vw" }} >
                 <Card.Header>{MessageBox}</Card.Header>

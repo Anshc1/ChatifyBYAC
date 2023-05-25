@@ -7,9 +7,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import React from 'react';
 React.useLayoutEffect = React.useEffect 
 
-
-
-
+import { SocketProvider } from '../contexts/SocketContext';
 export default function App({ Component, pageProps }) {
   var initialstate = "";
   var initialuserInfo = {
@@ -18,16 +16,23 @@ export default function App({ Component, pageProps }) {
     Url: "",
     UID: "",
   }
-  
+  var UID = ""; 
+  if(typeof window !== 'undefined'){
+    UID = window.localStorage.getItem('uid')
+  }
   
   const [UserInfo, setUserInfo] = useState(initialuserInfo)
 
   return (
-   <ProSidebarProvider>
+
+<SocketProvider>
+   <ProSidebarProvider >
       <Authcontext.Provider value={{ UserInfo, setUserInfo }}>
         <Component {...pageProps} />
       </Authcontext.Provider>
     </ProSidebarProvider>
+</SocketProvider>
     
+
   )
 }
