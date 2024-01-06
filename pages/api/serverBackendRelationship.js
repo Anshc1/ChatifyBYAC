@@ -32,8 +32,8 @@ const serverBackendRelationship = async (req, res) => {
 
             var val = new contact(data);
             await val.save().then(() => {
-                    res.send(200);
-                    console.log(err);
+                res.send(200);
+                
             });
         } else if (req.body.type === '2') {
             var data = {
@@ -82,11 +82,14 @@ const serverBackendRelationship = async (req, res) => {
                 email2: req.body.email1,
                 Status: false,
             }
-            await contact.deleteMany(data); 
-            res.end(); 
+            await contact.deleteMany(data);
+            res.end();
+        }else if(req.body.type === '5') { 
+            contact.find({email1 : req.body.email1 , email2:req.body.email2 }).then((data)=>{
+                res.send(data); 
+            })
         } else {
             contact.find({ email1: req.body.email }).then((data) => {
-
                 res.status(200).send(data);
             })
         }

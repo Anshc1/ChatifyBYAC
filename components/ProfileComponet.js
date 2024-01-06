@@ -38,17 +38,10 @@ import Image from 'next/image';
 import {
     maxHeight
 } from '@mui/system';
-import Router from 'next/router';
-import { Padding } from '@mui/icons-material';
+import { useRouter } from 'next/router';
 const app = initializeApp(firebaseConfig);
-
-import { io } from 'socket.io-client';
-
-
-
-
 export default function ProfileComponent() {
-
+    const Router = useRouter();
     const [toHide, settoHide] = useState(false)
     const [toHide1, settoHide1] = useState(true)
     const [userName, setuserName] = useState("")
@@ -56,38 +49,74 @@ export default function ProfileComponent() {
     const auth = useContext(Authcontext);
     const [check, setcheck] = useState(false)
     const [picURL, setpicURL] = useState('https://firebasestorage.googleapis.com/v0/b/chatifybyac.appspot.com/o/images%2Funknown-male-person-eps-10-vector-13383958.jpg?alt=media&token=4b94f2d6-e697-4ea7-b874-ab519bd3f141');
+    const [ButtonText, setButtonText] = useState("")
+    const [disableButton, setdisableButton] = useState(false)
     useEffect(() => {
-        if (typeof window !== "undefined") {
-            const emaill = window.localStorage.getItem("email");
-            if (Router.query.email !== undefined) {
-                if (emaill !== Router.query.email) {
-                    settoHide(true);
-                    settoHide1(false);
-                }
-                setEmail(Router.query.email);
-                setuserName(Router.query.name);
-                console.log(Router.query.ProfileURL)
-                if (Router.query.ProfileURL === "") {
-                    setpicURL('https://firebasestorage.googleapis.com/v0/b/chatifybyac.appspot.com/o/images%2Funknown-male-person-eps-10-vector-13383958.jpg?alt=media&token=4b94f2d6-e697-4ea7-b874-ab519bd3f141')
-                } else {
-                    setpicURL(Router.query.ProfileURL)
-                }
-            }
-            else {
-                console.log(window.localStorage.getItem('email'))
-                setuserName(window.localStorage.getItem('userName'));
-                setEmail(window.localStorage.getItem('email'))
-                if (typeof window !== 'undefined') {
-                    const local = window.localStorage.getItem('profilePicURL');
-                    if (local != null) {
-                        setpicURL(local)
+
+
+        const defaultFun = async () => {
+
+            if (typeof window !== "undefined") {
+                if (Router.isReady) {
+                    const emaill = window.localStorage.getItem("email");
+                    if (Router.query.email !== undefined) {
+                        if (emaill !== Router.query.email) {
+                            settoHide(true);
+                            settoHide1(false);
+                        }
+                        setEmail(Router.query.email);
+                        setuserName(Router.query.name);
+                        console.log({ "here" : Router.query.ProfileURL})
+                        if (Router.query.ProfileURL !== "") {
+                            
+                            setpicURL(Router.query.ProfileURL)
+                        } 
+                        const query = {
+                            body: JSON.stringify({
+                                type: '5',
+                                email1: Router.query.email,
+                                email2: emaill
+                            }),
+                            method: "POST",
+                            headers: {
+                                'Content-Type': 'application/json', 'Accept': 'application/json'
+                            },
+                        }
+                        const response = await fetch('/api/serverBackendRelationship' , query);
+                        await response.json().then((data)=>{
+                            if(data.length === 0 ){
+                                setButtonText('Add Friend')
+                            }else {
+                                if(data[0].Status === true){
+                                    setButtonText('Friends'); 
+                                }else{
+                                    setButtonText("Request Sent"); 
+                                }
+                                setdisableButton(true); 
+                            }
+                            console.log(data); 
+                        });
+                        
+                    }
+                    else {
+                        console.log(window.localStorage.getItem('email'))
+                        setuserName(window.localStorage.getItem('userName'));
+                        setEmail(window.localStorage.getItem('email'))
+                        if (typeof window !== 'undefined') {
+                            const local = window.localStorage.getItem('profilePicURL');
+                            if (local !== 'null') {
+                                console.log({'url' :  local})
+                                setpicURL(local)
+                            }
+                        }
                     }
                 }
             }
         }
-
-    }, [])
-
+        defaultFun(); 
+    }, [Router.isReady])
+   
+    
     const handleOnchange = (e) => {
         const storage = getStorage(app);
         const storageRef = ref(storage, 'images/' + userName);
@@ -146,22 +175,27 @@ export default function ProfileComponent() {
     }
 
 
+
+
+
     const handleaddfriend = async () => {
         if (typeof window !== "undefined") {
             const query = {
-                method : 'POST', 
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json', 'Accept': 'application/json'
                 },
                 body:
-                JSON.stringify({
-                    type: '1',
-                    email1: Router.query.email,
-                    email2: window.localStorage.getItem('email'),
-                })
+                    JSON.stringify({
+                        type: '1',
+                        email1: Router.query.email,
+                        email2: window.localStorage.getItem('email'),
+                    })
             }
             const response = await fetch('/api/serverBackendRelationship', query);
-            console.log(response) ; 
+            console.log(response); 
+            setButtonText("Request Sent");
+            setdisableButton(true); 
         }
 
     }
@@ -171,7 +205,7 @@ export default function ProfileComponent() {
     return (
 
         <div>
-            <div className="gradient-custom-2" style={{display: 'flex' , height: '100vh',  background: 'linear-gradient(to right, rgba(102, 126, 234, 0.5), rgba(118, 75, 162, 0.5))' }}>
+            <div className="gradient-custom-2" style={{ display: 'flex', height: '100vh', background: 'linear-gradient(to right, rgba(102, 126, 234, 0.5), rgba(118, 75, 162, 0.5))' }}>
                 <MDBContainer className="py-5 h-100">
                     <MDBRow className="justify-content-center align-items-center h-100">
                         <MDBCol lg="9" xl="7">
@@ -179,7 +213,7 @@ export default function ProfileComponent() {
                                 <div className="rounded-top text-white d-flex flex-row" style={{ backgroundColor: '#000', height: '200px' }}>
                                     <div className="ms-4 mt-5 d-flex flex-column" style={{ width: '150px', }}>
                                         <div style={{ height: 170 }}>
-                                            <Image loader={() => picURL} src={picURL} width={150} height={170} />
+                                            <Image loader={() => picURL} src={picURL} alt='loading'  width={150} height={170} />
                                         </div>
                                         <Button variant="outlined" component="label" style={{ width: '150px', marginTop: '10px' }} hidden={toHide}>
                                             Update Pic
@@ -193,8 +227,8 @@ export default function ProfileComponent() {
                                 </div>
                                 <div className="p-4 text-black" style={{ backgroundColor: '#f8f9fa' }}>
                                     <div className="d-flex justify-content-end text-center py-1">
-                                        <Button onClick={handleaddfriend} variant="outlined" component="label" style={{ width: '150px', marginTop: '10px' }} hidden={toHide1}>
-                                            Add Friend
+                                        <Button onClick={handleaddfriend} disabled={disableButton} variant="outlined" component="label" style={{ width: '150px', marginTop: '10px' }} hidden={toHide1}>
+                                            {ButtonText}
                                         </Button>
                                     </div>
                                 </div>

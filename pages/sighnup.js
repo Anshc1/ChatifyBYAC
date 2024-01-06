@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -12,12 +13,17 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useRouter } from 'next/router'
 import { io } from 'socket.io-client';
+
+import Alert from 'react-bootstrap/Alert';
+import { set } from 'mongoose';
+
+
 function Copyright(props) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
       {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
+      <Link color="inherit" href="">
+        Chatifybyac
       </Link>{' '}
       {new Date().getFullYear()}
       {'.'}
@@ -32,26 +38,40 @@ const theme = createTheme({
 });
 
 export default function sighnUp() {
+  const [show, setShow] = useState(false);
+
+  function AlertDismissible() {
+    if (show) {
+      return (
+        <Alert variant="danger" onClose={() => setShow(false)} dismissible>
+          <Alert.Heading>Oh snap! You got an error!</Alert.Heading>
+        </Alert>
+      );
+    }
+  }
+
+
   let router = useRouter();
   async function handleSubmit(event) {
     event.preventDefault();
+
     const data = new FormData(event.currentTarget);
     const email = data.get('email');
     const password = data.get('password');
     const name = data.get('firstName') + ' ' + data.get('lastName');
+   
     const req = {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json', 'Accept': 'application/json'
       },
-
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ email: email, password: password })
     }
+    console.log(req.body);
     const response = await fetch("/api/signinapi", req);
     const DataX = await response.json();
-    const UID = JSON.stringify(DataX.obj.uid)
     if (response.status === 200) {
-
+      const UID = JSON.stringify(DataX.obj.uid)
       const dataWeHavetoSave = {
         method: 'POST',
         headers: {
@@ -59,40 +79,48 @@ export default function sighnUp() {
         },
         body: JSON.stringify({ type: 'first', name: name, email: email, UID: UID })
       }
+
       const responsefromBackend = await fetch("/api/serverBackend", dataWeHavetoSave)
       await fetch('/api/socketidGenerator').finally(() => {
         const socket = io()
-        console.log('enter'); 
+        console.log('enter');
         socket.on('connect', () => {
           console.log('connect')
-          socket.emit('AddId', {email: email}, (ack) => {
-            console.log(ack); 
+          socket.emit('AddId', { email: email }, (ack) => {
+            console.log(ack);
           });
         })
         socket.on('disconnect', () => {
           console.log('disconnect')
         })
       })
+      router.push('/login');
     } else {
-      //console.log(UID); 
+      console.log(DataX)
+      setShow(true);
     }
-    router.push('/login');
   };
+
   return (
     <ThemeProvider theme={theme} >
       <Container component="main" maxWidth="xs">
         <CssBaseline />
         <Box
           sx={{
-            marginTop: 8,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
+            justifyContent: 'center',
+            height: '100vh',
           }}
         >
+          <AlertDismissible />
           <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
             <LockOutlinedIcon />
           </Avatar>
+          <Typography component="h1" variant="h5">
+            Welcome to Chatify!
+          </Typography>
           <Typography component="h1" variant="h5">
             Sign up
           </Typography>
@@ -158,8 +186,8 @@ export default function sighnUp() {
               </Grid>
             </Grid>
           </Box>
+          <Copyright sx={{ mt: 5 }} />
         </Box>
-        <Copyright sx={{ mt: 5 }} />
       </Container>
     </ThemeProvider>
   );

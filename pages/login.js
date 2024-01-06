@@ -16,20 +16,6 @@ import Authcontext from '../contexts/Authcontext';
 
 
 
-function Copyright(props) {
-  return (
-    <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
-
-
 
 const theme = createTheme({
   palette: {
@@ -41,8 +27,63 @@ const theme = createTheme({
 export default function login() {
 
   let router = useRouter();
+  function capitalizeFirstLetter(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
 
-  
+  const fetchPUrl = async (val) => {
+
+    const query = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json', 'Accept': 'application/json'
+      },
+      body: JSON.stringify({ type: '2', UID: val })
+    }
+    const response = (await fetch('/api/serverBackendImage', query));
+    const user = await response.json();
+    return user[0].URL;
+  }
+
+  const fetchName = async (val) => {
+    const UID = JSON.parse(val);
+    const query = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json', 'Accept': 'application/json'
+      },
+      body: JSON.stringify({ type: 'second', UID: UID })
+    }
+    const response = (await fetch('/api/serverBackend', query));
+    const user = await response.json();
+    return user.data;
+  }
+  const func = async () => {
+    var val;
+    if (typeof window !== "undefined") {
+      val = window.localStorage.getItem('uid');
+    }
+    await fetchName(val)
+      .then((res) => {
+        const Name = capitalizeFirstLetter(res[0].name);
+        const email = res[0].email;
+        console.log('Name:', Name, 'Email:', email);
+        localStorage.setItem('userName', Name);
+        localStorage.setItem('email', email);
+      })
+      .catch((error) => {
+        console.error('fetchName Error:', error);
+      });
+
+    await fetchPUrl(val)
+      .then((res) => {
+        console.log('Profile Pic URL:', res);
+        localStorage.setItem('profilePicURL', res);
+      })
+      .catch((err) => {
+        console.error('fetchPUrl Error:', err);
+      });
+  };
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -56,16 +97,13 @@ export default function login() {
       },
       body: JSON.stringify({ email, password })
     }
-
     const response = await fetch("/api/loginapi", req);
     const datax = await response.json();
-    const uid = JSON.stringify(datax.obj.uid);
-    if (uid === "") {
-      console.log("error");
-    }
-    else if (response.status === 200) {
-      localStorage.setItem("uid", uid );
-      localStorage.setItem("email",email); 
+    if (response.status === 200) {
+      const uid = JSON.stringify(datax.obj.uid);
+      localStorage.setItem("uid", uid);
+      localStorage.setItem("email", email);
+      await func()
       router.push('/mainpage');
     } else {
       console.log("error")
@@ -73,70 +111,72 @@ export default function login() {
   };
 
   return (
-    <ThemeProvider theme={theme} >
-      <Container component="main" maxWidth="xs">
-        <CssBaseline />
-        <Box
-          sx={{
-            marginTop: 8,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
-        >
-          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-            <LockOutlinedIcon />
-          </Avatar>
-          <Typography component="h1" variant="h5">
-            Sign In
-          </Typography>
-          <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
-            <Grid container spacing={2}>
-             
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  id="email"
-                  label="Email Address"
-                  name="email"
-                  autoComplete="email"
-                />
+    <div>
+      <ThemeProvider theme={theme}>
+        <Container component="main" maxWidth="xs">
+          <CssBaseline />
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '100vh', // This will make the content cover the entire viewport height
+            }}
+          >
+
+            <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+              <LockOutlinedIcon />
+            </Avatar>
+            <Typography component="h1" variant="h5">
+              Welcome to Chatify!
+            </Typography>
+            <Typography component="h1" variant="h5">
+              Sign In
+            </Typography>
+            <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <TextField
+                    required
+                    fullWidth
+                    id="email"
+                    label="Email Address"
+                    name="email"
+                    autoComplete="email"
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    required
+                    fullWidth
+                    name="password"
+                    label="Password"
+                    type="password"
+                    id="password"
+                    autoComplete="new-password"
+                  />
+                </Grid>
               </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  name="password"
-                  label="Password"
-                  type="password"
-                  id="password"
-                  autoComplete="new-password"
-                />
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                sx={{ mt: 3, mb: 2 }}
+              >
+                Sign Up
+              </Button>
+              <Grid container justifyContent="flex-end">
+                <Grid item>
+                  <Link href="/sighnup" variant="body2">
+                    Do not have an account? Sign Up
+                  </Link>
+                </Grid>
               </Grid>
-              <Grid item xs={12}>
-               
-              </Grid>
-            </Grid>
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
-              Sign Up
-            </Button>
-            <Grid container justifyContent="flex-end">
-              <Grid item>
-                <Link href="/sighnup" variant="body2">
-                  Do not have an account? Sign Up
-                </Link>
-              </Grid>
-            </Grid>
+            </Box>
           </Box>
-        </Box>
-        <Copyright sx={{ mt: 5 }} />
-      </Container>
-    </ThemeProvider>
+        </Container>
+      </ThemeProvider>
+    </div>
   );
 }

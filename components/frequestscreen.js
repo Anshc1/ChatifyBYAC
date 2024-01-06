@@ -96,10 +96,8 @@ export default function Frequestscreen() {
   
 
 
-  useEffect(() => {
-      setrlist([]);
-      fetchRlist(); 
-  }, [])
+  
+  React.useMemo(() => fetchRlist() , [])
 
 
   return (
@@ -110,7 +108,7 @@ export default function Frequestscreen() {
         <div>
           <div style={{ display: "flex", justifyContent: 'center', height: "92vh" }}>
             <Card style={{ minWidth: '50vw' }} className="text-center"  >
-              <Card.Body>
+              <Card.Body className='scrollbar scrollbar-primary  overflow-auto'>
                 <Card.Header>Connections Requests</Card.Header>
 
                 {rlist.map((text, index) => (

@@ -16,7 +16,7 @@ function ProfilePage() {
   }, [router.query])
   return(
     <div style={ {  height:  '100vh'  }}>
-    <NavBarr />
+    <NavBarr prosp = {"NOO"} />
     <ProfileComponent/>
     </div>
   )

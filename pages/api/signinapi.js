@@ -7,6 +7,7 @@ const auth = getAuth(app);
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
+    console.log(req.body.email) 
     await createUserWithEmailAndPassword(auth, req.body.email, req.body.password)
       .then((response) => {
         const user = response.user;

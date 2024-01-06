@@ -20,7 +20,8 @@ import { ReactSearchAutocomplete } from 'react-search-autocomplete'
 import { Avatar, Hidden } from '@mui/material';
 import AdbIcon from '@mui/icons-material/Adb';
 import LogoutIcon from '@mui/icons-material/Logout'
-
+import TextField from '@mui/material/TextField';
+import { Autocomplete } from '@mui/material/Autocomplete';
 
 
 
@@ -36,6 +37,7 @@ const fetchNames = async () => {
   const user = await response.json();
   return user.data;
 }
+var mp ={}; 
 const fetchURL = async () => {
   const query = {
     method: 'GET',
@@ -43,14 +45,13 @@ const fetchURL = async () => {
       'Content-Type': 'application/json', 'Accept': 'application/json'
     },
   }
-  var mp = new Map();
   const response = await fetch('/api/serverBackendImage', query)
   await response.json().then((user) => {
+    console.log({users : user}) 
     for (const child of user) {
-      mp.set(JSON.stringify(child.UID), child.URL)
+      mp[child.UID] =child.URL;
     }
   });
-  return mp;
 }
 
 const SearchIconWrapper = styled('div')(({ theme }) => ({
@@ -78,8 +79,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 
 
-export default function NavBarr() {
-
+export default function NavBarr(props) {
 
   const [toHide, settoHide] = useState(false)
   const [Item, setItem] = useState([])
@@ -94,25 +94,29 @@ export default function NavBarr() {
     Router.push('/login');
   }
 
-  useEffect(() => {
 
-    if (Router.query.email !== undefined) {
+  const unploadIds = () => {
+    if (props.prosp === 'NOO') {
+      console.log(props)
       settoHide(true);
     }
     setItem([]);
-    fetchURL().then((mp) => {
+    fetchURL().then(() => {
       fetchNames().then((user) => {
         for (const child of user) {
+          
           const data = {
-            name: child.name,
+            name: String(child.name),
             email: child.email,
-            ProfileURL: mp.get((child.UID))
+            ProfileURL: mp[child.UID]
           }
           setItem(current => [...current, data]);
         }
       });
     })
-  }, [])
+  }
+  React.useMemo(() => unploadIds(), [])
+
   const handleOnSearch = (string, results) => {
     console.log(string, results)
   }
@@ -154,11 +158,13 @@ export default function NavBarr() {
     )
   });
   const [userName, setuserName] = useState("")
-  const [userPic, setuserPic] = useState("")
+  const [userPic, setuserPic] = useState('https://firebasestorage.googleapis.com/v0/b/chatifybyac.appspot.com/o/images%2Funknown-male-person-eps-10-vector-13383958.jpg?alt=media&token=4b94f2d6-e697-4ea7-b874-ab519bd3f141')
   if (typeof window !== "undefined" && window.localStorage.getItem('userName') !== null) {
     useEffect(() => {
       setuserName(window.localStorage.getItem('userName'));
-      setuserPic(window.localStorage.getItem('profilePicURL'));
+      if (window.localStorage.getItem('profilePicURL') !== 'null') {
+        setuserPic(window.localStorage.getItem('profilePicURL'));
+      }
     }, [])
   }
 
@@ -201,7 +207,7 @@ export default function NavBarr() {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={()=>{Router.push('/ProfilePage')}} disabled={toHide} >Profile</MenuItem>
+      <MenuItem onClick={() => { Router.push('/ProfilePage') }} disabled={toHide} >Profile</MenuItem>
       <MenuItem onClick={handleMenuClose}>Verify My account</MenuItem>
     </Menu>
   );
@@ -261,7 +267,7 @@ export default function NavBarr() {
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static" style={{ background: '#2E3B55' }} >
-        <Toolbar>
+        <Toolbar style={{ display: 'flex' }}>
           <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
           <Typography
             variant="h6"
@@ -282,22 +288,20 @@ export default function NavBarr() {
           </Typography>
 
 
-          <div className="App" >
-            <header className="App-header">
-              <div style={{ marginLeft: 150, minWidth: '300px' }} hidden={toHide}>
-                <ReactSearchAutocomplete
-                  styling={{ height: "27px", zIndex: 1000, width: "100px" }}
-                  items={Item}
-                  fuseOptions={{ keys: ['name', 'email'] }}
-                  onSearch={handleOnSearch}
-                  onHover={handleOnHover}
-                  onSelect={handleOnSelect}
-                  onFocus={handleOnFocus}
-                  autoFocus
-                  formatResult={formatResult}
-                />
 
-              </div>
+          <div className="App" style={{ minWidth: 270, marginLeft: 10, marginRight: 10 }} hidden={toHide} >
+            <header className="App-header">
+              <ReactSearchAutocomplete
+                styling={{ height: "27px", zIndex: 1000 }}
+                items={Item}
+                fuseOptions={{ keys: ['name', 'email'] }}
+                onSearch={handleOnSearch}
+                onHover={handleOnHover}
+                onSelect={handleOnSelect}
+                onFocus={handleOnFocus}
+                autoFocus
+                formatResult={formatResult}
+              />
             </header>
           </div>
 
@@ -353,5 +357,6 @@ export default function NavBarr() {
       {renderMobileMenu}
       {renderMenu}
     </Box>
+
   )
 }
