@@ -1,0 +1,11 @@
+node_modules
+.git
+.env
+.npmignore
+.dockerignore
+.gitignore
+README.md
+LICENSE
+*.md
+*.log
+tmp/

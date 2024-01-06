@@ -1,7 +1,7 @@
 import messageSchema from '../../Models/messageSchema'
 const mongoose = require('mongoose');
 
-mongoose.connect('mongodb://127.0.0.1:27017/', {
+mongoose.connect('mongodb+srv://ansh_c:12345@cluster0.znvzn.mongodb.net/', {
     dbName: 'ProfilesX',
     useNewUrlParser: true,
     useUnifiedTopology: true
