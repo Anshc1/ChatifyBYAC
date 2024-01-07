@@ -1,20 +1,17 @@
 import { Server } from 'socket.io';
+import connectToDatabase from '../../utils/mongodb';
 const mongoose = require('mongoose');
-mongoose.connect('mongodb+srv://ansh_c:12345@cluster0.znvzn.mongodb.net/', {
-    dbName: 'ProfilesX',
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-}, err => err ? console.log(err) : 'Done');
 
 
-const messageSchema = new mongoose.Schema({
-    user1: String,
-    user2: String,
-})
-var conversationData = mongoose.models.messagesData || mongoose.model('messagesData', messageSchema);
-conversationData.createIndexes();
 
 function saveMessage(req , res) { 
+    const messageSchema = new mongoose.Schema({
+        user1: String,
+        user2: String,
+    })
+    connectToDatabase(); 
+    var conversationData = mongoose.models.messagesData || mongoose.model('messagesData', messageSchema);
+    conversationData.createIndexes();
     let ioInstance
     if (ioInstance) {
         console.log('Socket is already running');    

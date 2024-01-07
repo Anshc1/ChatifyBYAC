@@ -1,21 +1,15 @@
 import { Server } from 'socket.io';
 import messageSchema from '../../Models/messageSchema'; 
-
-
+import connectToDatabase from '../../utils/mongodb';
 const mongoose = require('mongoose');
-mongoose.connect('mongodb+srv://ansh_c:12345@cluster0.znvzn.mongodb.net/', {
-    dbName: 'ProfilesX',
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-}, err => err ? console.log(err) : 'Done');
 
 
-var conversationData = mongoose.models.messagesData || mongoose.model('messagesData', messageSchema);
-conversationData.createIndexes();
 
 var AlreadyArived  = {}; 
 function messengingBackend(req, res) {
-
+    connectToDatabase();
+    var conversationData = mongoose.models.messagesData || mongoose.model('messagesData', messageSchema);
+    conversationData.createIndexes();
     if (res.socket.server.io) {
         console.log('Socket is already running')
     } else {

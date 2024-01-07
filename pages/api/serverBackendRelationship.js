@@ -1,11 +1,6 @@
+import connectToDatabase from '../../utils/mongodb';
 
 const mongoose = require('mongoose');
-mongoose.set('strictQuery', false);
-mongoose.connect('mongodb+srv://ansh_c:12345@cluster0.znvzn.mongodb.net/', {
-    dbName: 'ProfilesX',
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-}, err => err ? console.log(err) : "DONE");
 
 const contactSchema = new mongoose.Schema({
     email1: String,
@@ -13,14 +8,14 @@ const contactSchema = new mongoose.Schema({
     Status: Boolean,
 });
 
-var contact = mongoose.models.contact || mongoose.model('contact', contactSchema);
-
-contact.createIndexes();
 
 
 
 const serverBackendRelationship = async (req, res) => {
+    connectToDatabase();
+    var contact = mongoose.models.contact || mongoose.model('contact', contactSchema);
 
+    contact.createIndexes();
     if (req.method === 'POST') {
         if (req.body.type === '1') {
             const data = {
@@ -33,7 +28,7 @@ const serverBackendRelationship = async (req, res) => {
             var val = new contact(data);
             await val.save().then(() => {
                 res.send(200);
-                
+
             });
         } else if (req.body.type === '2') {
             var data = {
@@ -84,9 +79,9 @@ const serverBackendRelationship = async (req, res) => {
             }
             await contact.deleteMany(data);
             res.end();
-        }else if(req.body.type === '5') { 
-            contact.find({email1 : req.body.email1 , email2:req.body.email2 }).then((data)=>{
-                res.send(data); 
+        } else if (req.body.type === '5') {
+            contact.find({ email1: req.body.email1, email2: req.body.email2 }).then((data) => {
+                res.send(data);
             })
         } else {
             contact.find({ email1: req.body.email }).then((data) => {

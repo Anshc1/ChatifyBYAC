@@ -1,15 +1,11 @@
 const mongoose = require('mongoose');
 import ProfileSchema from '../../Models/ProfileSchema'; 
-mongoose.connect('mongodb+srv://ansh_c:12345@cluster0.znvzn.mongodb.net/', {
-    dbName: 'ProfilesX',
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-}, err => err ? console.log(err) : "DONE");
-
-var ProfilesImages = mongoose.models.profileImages || mongoose.model('profileImages', ProfileSchema);
-ProfilesImages.createIndexes();
+import connectToDatabase from '../../utils/mongodb';
 
 async function serverBackendImage(req, res) {
+    connectToDatabase(); 
+    var ProfilesImages = mongoose.models.profileImages || mongoose.model('profileImages', ProfileSchema);
+    ProfilesImages.createIndexes();
     if (req.method === 'POST') {
         if(req.body.type === '1'){
             await ProfilesImages.deleteMany({UID : req.body.UID})

@@ -54,7 +54,7 @@ export default function MainScreen(props) {
 
       if (messageQueue.length > 0 && messageQueue.slice(-1)[0].auther === currUser) {
         let is_submitted = false;
-        await fetch('api/messengingBackend').finally(() => {
+        await fetch('http://localhost:3001/').finally(() => {
          
           if (!is_submitted) {
             is_submitted = true;
@@ -106,7 +106,7 @@ export default function MainScreen(props) {
       const updateMscreen = async () => {
         if (socket) {
 
-          await fetch('api/messengingBackend').finally(() => {
+          await fetch('http://localhost:3001/').finally(() => {
             /*socket.on('connect', () => {
               console.log('connect')
             })*/
@@ -171,7 +171,7 @@ export default function MainScreen(props) {
     const connectToSocket = async () => {
       if (typeof window !== 'undefined' && socket) {
         const emailx = window.localStorage.getItem('email');
-        await fetch('/api/messengingBackend')
+        await fetch('http://localhost:3001/')
         socket.emit('registerUser', { email: emailx }, (ack) => {
           console.log(ack);
         })

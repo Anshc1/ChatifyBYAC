@@ -1,16 +1,14 @@
 const mongoose = require('mongoose');
 import ProfileSchema from "../../Models/userSchema" 
-mongoose.connect('mongodb+srv://ansh_c:12345@cluster0.znvzn.mongodb.net/', {
-    dbName: 'ProfilesX',
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-}, err => err ? console.log(err) : "DONE");
+import connectToDatabase from "../../utils/mongodb";
 
-var ProfileX = mongoose.models.profilesX || mongoose.model('profilesX', ProfileSchema);
-ProfileX.createIndexes({unique: true});
+
 
 let ALreadyArrived ={}; 
 async function serverBackend(req, res) {
+    connectToDatabase(); 
+    var ProfileX = mongoose.models.profilesX || mongoose.model('profilesX', ProfileSchema);
+    ProfileX.createIndexes({unique: true});
     if (req.method === 'POST') {
         if (req.body.type === 'first') {
             if(ALreadyArrived[req.body.email] === 1 ){
