@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
-const MONGO_URI = 'mongodb+srv://ansh_c:12345@cluster0.znvzn.mongodb.net/';
-const MONGO_DB_NAME = 'ProfilesX';
+const MONGO_URI = process.env.MONGODB_URI;
+const MONGO_DB_NAME = process.env.MONGO_DB_NAME;
 
 if (!MONGO_URI) {
     throw new Error('Please define the MONGO_URI environment variable');
