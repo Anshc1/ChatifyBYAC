@@ -7,4 +7,4 @@ const messageSchema = new mongoose.Schema({
     time: String,
     hh: { type: String, unique: true }
 }); 
-export default messageSchema; 
+module.exports = messageSchema ; 

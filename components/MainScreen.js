@@ -1,10 +1,9 @@
 import * as React from 'react';
 import ContactsOutlinedIcon from "@mui/icons-material/ContactsOutlined";
 import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
-
 import NavBarr from './NavBarr';
 import { useState, useEffect, useRef, useCallback } from 'react';
-import {  Menu, MenuItem, SubMenu, useProSidebar, SidebarHeader , ProSidebar ,Sidebar } from 'react-pro-sidebar';
+import { Menu, MenuItem, SubMenu, useProSidebar, SidebarHeader, ProSidebar, Sidebar } from 'react-pro-sidebar';
 import { Button, ButtonGroup, Card, Form, Row, Col, InputGroup, Badge } from 'react-bootstrap';
 import Router, { useRouter } from 'next/router';
 import { io } from 'socket.io-client';
@@ -47,52 +46,41 @@ export default function MainScreen(props) {
     e.preventDefault();
     mssgRef.current.value = '';
     if (typeof window !== 'undefined') {
-
       var hash = require('object-hash');
       var currentUser = window.localStorage.getItem('email');
-      console.log(messageQueue.slice(-1)[0]);
-
+      //console.log(messageQueue.slice(-1)[0]);
       if (messageQueue.length > 0 && messageQueue.slice(-1)[0].auther === currUser) {
         let is_submitted = false;
-        await fetch('http://localhost:3001/').finally(() => {
-         
-          if (!is_submitted) {
-            is_submitted = true;
-          
-            var user1 = currentUser;
-            var user2 = MessageBox;
-
-            var turn = '1';
-            if (user1 < user2) {
-              turn = '2';
-              [user1, user2] = [user2, user1];
-            }
-
-            const hs = hash(messageQueue.slice(-1)[0]);
-
-            socket.emit('messageServerConnection', {
-              user1: user1,
-              user2: user2,
-              turn: turn,
-              message: messageQueue.slice(-1)[0].message,
-              time: messageQueue.slice(-1)[0].time,
-              hh: hs
-            }, (ack) => {
-              console.log(ack);
-            })
-
+        if (!is_submitted) {
+          is_submitted = true;
+          var user1 = currentUser;
+          var user2 = MessageBox;
+          var turn = '1';
+          if (user1 < user2) {
+            turn = '2';
+            [user1, user2] = [user2, user1];
           }
-        })
+          const hs = hash(messageQueue.slice(-1)[0]);
+          socket.emit('messageServerConnection', {
+            user1: user1,
+            user2: user2,
+            turn: turn,
+            message: messageQueue.slice(-1)[0].message,
+            time: messageQueue.slice(-1)[0].time,
+            hh: hs
+          }, (ack) => {
+            console.log(ack);
+          })
+        }
       }
     }
-  } , [messageQueue]); 
+  }, [messageQueue]);
 
- 
+
 
 
   React.useMemo(() => {
     setmessageQueue([])
-    //const socket = io();
     var currentUser
     if (typeof window !== 'undefined') {
       if (MessageBox !== "") {
@@ -105,46 +93,34 @@ export default function MainScreen(props) {
       currentUser = window.localStorage.getItem('email');
       const updateMscreen = async () => {
         if (socket) {
+          var user1 = currentUser;
+          var user2 = MessageBox;
+          if (user1 < user2) {
+            [user1, user2] = [user2, user1];
+          }
 
-          await fetch('http://localhost:3001/').finally(() => {
-            /*socket.on('connect', () => {
-              console.log('connect')
-            })*/
-            var user1 = currentUser;
-            var user2 = MessageBox;
-            if (user1 < user2) {
-              [user1, user2] = [user2, user1];
-            }
-
-            const updMessage = (ack) => {
-              ack.forEach(element => {
-                if (element.turn === '1') {
-                  setmessageQueue(current => [...current, { message: element.message, auther: element.user1, time: element.time }])
-                } else {
-                  setmessageQueue(current => [...current, { message: element.message, auther: element.user2, time: element.time }])
-                }
-              });
-            }
-            socket.emit('getMessages', {
-              user1: user1,
-              user2: user2,
-            }, (ack) => {
-              updMessage(ack)
-            })
-
-            /*socket.on('disconnect', () => {
-              console.log('disconnect')
-            })*/
+          const updMessage = (ack) => {
+            ack.forEach(element => {
+              if (element.turn === '1') {
+                setmessageQueue(current => [...current, { message: element.message, auther: element.user1, time: element.time }])
+              } else {
+                setmessageQueue(current => [...current, { message: element.message, auther: element.user2, time: element.time }])
+              }
+            });
+          }
+          socket.emit('getMessages', {
+            user1: user1,
+            user2: user2,
+          }, (ack) => {
+            updMessage(ack)
           })
+
         }
       }
       updateMscreen();
     }
     return (() => socket ? socket.off('getMessages') : null);
   }, [MessageBox])
-
-
-
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -155,7 +131,6 @@ export default function MainScreen(props) {
   useEffect(() => {
     setflist([])
     setrlist([]);
-    console.log(props.props);
     props.props.forEach(element => {
       if (element.status) {
         setflist(current => [...current, { email: element.email }]);
@@ -171,26 +146,24 @@ export default function MainScreen(props) {
     const connectToSocket = async () => {
       if (typeof window !== 'undefined' && socket) {
         const emailx = window.localStorage.getItem('email');
-        await fetch('http://localhost:3001/')
         socket.emit('registerUser', { email: emailx }, (ack) => {
           console.log(ack);
         })
         socket.on('recieveMessage', (messageData) => {
-          
-            var sender = messageData.user1;
-            var reciever = messageData.user2;
-            if (messageData.turn === '2') {
-              [sender, reciever] = [reciever, sender];
+          var sender = messageData.user1;
+          var reciever = messageData.user2;
+          if (messageData.turn === '2') {
+            [sender, reciever] = [reciever, sender];
+          }
+          if (reciever === currUser) {
+            if (sender === MessageBox) {
+              setmessageQueue(curr => [...curr, { message: messageData.message, auther: sender, time: messageData.time }])
+            } else {
+              console.log(reciever)
+              console.log(sender)
+              handleIncomingMessage(sender);
             }
-            if (reciever === currUser) {
-              if (sender === MessageBox) {
-                setmessageQueue(curr => [...curr, { message: messageData.message, auther: sender, time: messageData.time }])
-              } else {
-                console.log(reciever)
-                console.log(sender)
-                handleIncomingMessage(sender);
-              }
-            }
+          }
         })
       }
     };
@@ -199,35 +172,35 @@ export default function MainScreen(props) {
 
     return (() => socket ? socket.off('recieveMessage') : null);
 
-  }, [socket, MessageBox , ]);
+  }, [socket, MessageBox,]);
 
-  
+
   return (
     <div>
       <NavBarr />
       <div style={{ display: 'flex', height: '100vh', flexDirection: "row" }}>
-       
-          <Sidebar breakPoint='sm'   > 
-            <Menu iconShape="square">
-              <SubMenu icon={<PeopleOutlinedIcon />} label="Connections">
-                {flist.map((text, index) => {
-                  return (
-                    <div style={{ display: "flex", flexDirection: 'row' }}>
-                      <MenuItem onClick={() => setMessageBox(text.email)} style={{ fontSize: "13px" }}>
-                        {text.email}
-                        {' '}
-                        {messageCount[text.email] > 0 && <Badge>{messageCount[text.email]}</Badge>}
 
-                      </MenuItem>
-                    </div>
-                  )
-                })}
-              </SubMenu>
-              <MenuItem onClick={() => handleContacts()} icon={<ContactsOutlinedIcon />}>Contacts
+        <Sidebar breakPoint='sm'   >
+          <Menu iconShape="square">
+            <SubMenu icon={<PeopleOutlinedIcon />} label="Connections">
+              {flist.map((text, index) => {
+                return (
+                  <div style={{ display: "flex", flexDirection: 'row' }}>
+                    <MenuItem onClick={() => setMessageBox(text.email)} style={{ fontSize: "13px" }}>
+                      {text.email}
+                      {' '}
+                      {messageCount[text.email] > 0 && <Badge>{messageCount[text.email]}</Badge>}
 
-              </MenuItem>
-            </Menu>
-          </Sidebar>
+                    </MenuItem>
+                  </div>
+                )
+              })}
+            </SubMenu>
+            <MenuItem onClick={() => handleContacts()} icon={<ContactsOutlinedIcon />}>Contacts
+
+            </MenuItem>
+          </Menu>
+        </Sidebar>
 
         <div>
           {MessageBox !== "" ? (

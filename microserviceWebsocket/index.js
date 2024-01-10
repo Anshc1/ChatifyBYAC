@@ -3,22 +3,12 @@ const http = require('http');
 const { Server } = require('socket.io');
 const mongoose = require('mongoose');
 const cors = require('cors');
-
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
-
-const messageSchema = new mongoose.Schema({
-    user1: String,
-    user2: String,
-    turn: String,
-    message: String,
-    time: String,
-    hh: { type: String, unique: true }
-});  
-
-mongoose.connect('mongodb+srv://ansh_c:12345@cluster0.znvzn.mongodb.net/', {
-    dbName: 'ProfilesX',
+require('dotenv').config(); 
+const messageSchema = require('./models/messageSchema'); 
+mongoose.connect(process.env.MONGODB_URI, {
+    dbName: process.env.MONGO_DB_NAME,
     useNewUrlParser: true,
     useUnifiedTopology: true
 }, err => {
@@ -29,7 +19,19 @@ mongoose.connect('mongodb+srv://ansh_c:12345@cluster0.znvzn.mongodb.net/', {
     console.log('Connected to MongoDB');
 });
 
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:3001', 
+    methods : ['GET' , 'POST'], 
+    credentials : 'true'
+}));
+
+const io = new Server(server, {
+    cors: {
+        origin: 'http://localhost:3000',
+        methods: ['GET', 'POST'],
+        credentials: true
+    }
+});
 
 const conversationData = mongoose.models.messagesData || mongoose.model('messagesData', messageSchema);
 conversationData.createIndexes();
@@ -38,6 +40,7 @@ var AlreadyArived = {};
 
 io.on('connection', (socket) => {
     socket.on('messageServerConnection', async (arg, callback) => {
+        console.log(arg); 
         var recipientId = arg.turn === '2' ? arg.user2 : arg.user1;
         if (!AlreadyArived[arg.hh]) {
             try {
@@ -51,7 +54,6 @@ io.on('connection', (socket) => {
             }
         }
     });
-
     socket.on('getMessages', (arg, callback) => {
         conversationData.find(arg).then((data) => {
             callback(data);
